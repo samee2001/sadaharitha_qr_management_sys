@@ -1,0 +1,99 @@
+body {
+    background-color: #f2f5fa !important;
+    background-image: url('sdh_bg_2.png') !important;
+    background-size: cover !important;
+    background-position: center !important;
+    background-attachment: fixed !important;
+    background-repeat: no-repeat !important;
+    min-height: 100vh !important;
+}
+
+.card {
+    border: none !important;
+    border-radius: 22px !important;
+    box-shadow: 0 8px 32px 0 rgba(24, 77, 39, 0.18) !important;
+    background: rgba(242, 240, 240, 0.82) !important;
+    backdrop-filter: blur(8px) saturate(140%) !important;
+    border: 1.5px solid rgba(76, 175, 80, 0.22) !important;
+    overflow: hidden !important;
+    opacity: 0.85 !important;
+    
+}
+
+.card-header {
+    background: linear-gradient(90deg, #256d3b 60%, #4b8e4b 100%) !important;
+    border-top-left-radius: 22px !important;
+    border-top-right-radius: 22px !important;
+    color: #fff !important;
+    letter-spacing: 1px !important;
+    box-shadow: 0 4px 16px 0 rgba(24, 77, 39, 0.08) !important;
+    padding: 2rem 1rem 1rem 1rem !important;
+}
+
+.card-header h4 {
+    font-size: 1.7rem !important;
+    font-weight: 700 !important;
+    letter-spacing: 2px !important;
+}
+
+.card-body {
+    padding: 2.2rem 2rem 1.5rem 2rem !important;
+}
+
+.form-group label {
+    color: #256d3b !important;
+    font-weight: 600 !important;
+    font-size: 1.07rem !important;
+    margin-bottom: 0.3rem !important;
+    display: flex !important;
+    align-items: center !important;
+}
+
+.form-control {
+    border-radius: 18px !important;
+    padding: 0.8rem 1.1rem !important;
+    font-size: 1.06rem !important;
+    border: 1.5px solid #e0e0e0 !important;
+    box-shadow: 0 1px 4px rgba(24, 77, 39, 0.04) !important;
+    transition: border 0.2s, box-shadow 0.2s !important;
+}
+
+.form-control:focus {
+    border-color: #256d3b !important;
+    box-shadow: 0 0 0 3px #4b8e4b33 !important;
+    outline: none !important;
+}
+
+.btn-success {
+    background: linear-gradient(90deg, #256d3b 60%, #4b8e4b 100%) !important;
+    border: none !important;
+    font-weight: 700 !important;
+    letter-spacing: 1px !important;
+    border-radius: 24px !important;
+    transition: background 0.3s, box-shadow 0.3s, transform 0.2s !important;
+    box-shadow: 0 2px 8px 0 rgba(24, 77, 39, 0.12) !important;
+    padding: 0.8rem 0 !important;
+    font-size: 1.15rem !important;
+    width: 100% !important;
+}
+
+.btn-animate:hover,
+.btn-animate:focus {
+    background: linear-gradient(90deg, #184d27 60%, #256d3b 100%) !important;
+    box-shadow: 0 4px 16px 0 rgba(24, 77, 39, 0.18) !important;
+    transform: translateY(-2px) scale(1.04) !important;
+}
+
+.forest-logo {
+    width: 56px !important;
+    height: 56px !important;
+    display: block !important;
+    margin: 0 auto 18px auto !important;
+    filter: drop-shadow(0 2px 6px #184d2733) !important;
+}
+
+.alert-danger {
+    border-radius: 12px !important;
+    font-weight: 500 !important;
+    font-size: 1.05rem !important;
+}
