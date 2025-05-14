@@ -9,13 +9,11 @@ if (isset($_POST['submit'])) {
     $range = $_POST['range'];
     $estate = $_POST['estate'];
 
-    // Get current date and time automatically
-    $currentDate = date('Y-m-d'); // Get current date in YYYY-MM-DD format
-    $currentTime = date('H:i:s'); // Get current time in HH:MM:SS format
+   
 
     // Insert data into the database (note: backticks for table name, not single quotes)
     $sql = "INSERT INTO `qr_management` (updater_name, email, field, date, time, estate) 
-            VALUES ('$updater_name', '$email', '$range', '$currentDate', '$currentTime', '$estate')";
+            VALUES ('$updater_name', '$email', '$range', now(), DATE_FORMAT(now(), '%H:%i'), '$estate')";
 
     if ($conn->query($sql) === TRUE) {
         // Redirect to plantation_management.php after successful insertion
@@ -41,13 +39,15 @@ if (isset($_POST['submit'])) {
 
     <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.4.1/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <link rel="stylesheet" type="text/css" href="styles.css">
 
     <title>Fill QR Details</title>
 </head>
 
 <body class="bg-light-5 ">
-    <h2 class="text-center my-5">Fill in the details</h2>
-    <div class="container my-5 bg-light p-5 transparent-container">
+    <h2 class="text-center my-5" style="color: lawngreen;">Fill the QR Code Details</h2>
+    <div class="container my-5 bg-light p-5 transparent-container " style="max-width: 800px; opacity: 0.75; border-radius: 10px;">
         <form method="post">
             <div class="form-group">
                 <label>Updater Name</label>
@@ -68,7 +68,7 @@ if (isset($_POST['submit'])) {
                 <label>Estate QR Belongs to</label>
                 <input type="text" class="form-control" placeholder="Enter the Estate" name="estate" required>
             </div>
-            <button type="submit" class="btn btn-primary" name="submit">Submit</button>
+            <div class="text-center "><button type="submit" class="btn btn-primary" name="submit">Submit</button></div>
         </form>
     </div>
 </body>

@@ -35,13 +35,13 @@ if (isset($_POST['generate'])) {
     try {
         $pdfContent = generateQRPDF($mysqli, $tableName = "plant_data", $params);
         //need a sql query to pass value to the table qr_management with values of generated date, time and login email, user name, field and estate
-        $email = $_SESSION['email'];
+        /*$email = $_SESSION['email'];
         $userName = $_SESSION['name'];
         $field = $_POST['rangeStart'] . '-' . ($_POST['rangeStart'] + $_POST['rangeStep'] - 1);
         $estate = $_POST['estate'];
         $sql = "INSERT INTO qr_management (updater_name, email, field, date, time, estate) 
             VALUES ('$userName', '$email', '$field', now(), now(), '$estate')";
-        $mysqli->query($sql);
+        $mysqli->query($sql);*/
         header('Content-Type: application/pdf');
         header('Content-Disposition: attachment; filename="QR_Codes.pdf"');
         echo $pdfContent;
@@ -116,26 +116,6 @@ if (isset($_POST['generate'])) {
             </div>
             <div class="form-text">Specify the starting row and how many QR codes to generate (step, max 5000)</div>
             <hr>
-            <h4 class="mb-3">4️⃣Estate Name</h4>
-            <label for="estate" class="form-label">Estate Name</label>
-            <select class="form-select" id="estate" name="estate" required>
-                <option value="" selected disabled>Select Estate</option>
-                <?php
-                // Fetch estates from database
-                $estate_query = $mysqli->prepare("SELECT estate_name FROM estate");
-                $estate_query->execute();
-                $result = $estate_query->get_result();
-
-                while ($row = $result->fetch_assoc()) {
-                    $estateName = htmlspecialchars($row['estate_name']);
-                    echo "<option value='$estateName'>$estateName</option>";
-                }
-                // Close connections
-                $result->close();
-                $estate_query->close();
-                ?>
-            </select>
-            <div class="form-text">Select estate from the list of available options.</div>
             <div class="text-center">
                 <button type="submit" name="generate" class="btn btn-primary btn-custom">Generate PDF</button>
             </div>

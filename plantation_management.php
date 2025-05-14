@@ -43,7 +43,7 @@ $total_pages = ceil($total_records / $records_per_page);
     <br><br><br>
     <h2 class="text-center my-5">Plantation Management QR Details</h2>
     <div class="container my-5 bg-light p-5">
-        <!--<button type="button" class="btn btn-primary"><a href="add_details.php" class="text-light">Add Details</a></button>-->
+        <button type="button" class="btn btn-primary"><a href="add_details.php" class="text-light">Add QR Details</a></button>
         <table class="table my-5">
             <thead>
                 <tr>
