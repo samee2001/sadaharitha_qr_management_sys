@@ -1,33 +1,25 @@
 <?php
+session_start();
+
 // Include the database connection file
-include 'connect.php'; // Ensure the database connection is included
-
+include 'connect.php';
+$id = $_GET['updateid'];
 if (isset($_POST['submit'])) {
-    // Get the data from the form
-    $updater_name = $_POST['name'];
+    $name = $_POST['name'];
     $email = $_POST['email'];
-    $range = $_POST['range'];
     $estate = $_POST['estate'];
+    $range = $_POST['range'];
 
-
-
-    // Insert data into the database (note: backticks for table name, not single quotes)
-    $sql = "INSERT INTO `qr_management` (updater_name, email, field, date, time, estate) 
-            VALUES ('$updater_name', '$email', '$range', now(), now(), '$estate')";
-
-    if ($conn->query($sql) === TRUE) {
-        // Redirect to plantation_management.php after successful insertion
-        header("Location: plantation_management.php");
-        exit();
+    $sql = "UPDATE `qr_management` SET updater_name='$name', email='$email', estate='$estate', field='$range' WHERE id=$id"; // Replace 'table_name' with your actual table name='$mobile', password='$password' WHERE id=$id";
+    $result = mysqli_query($conn, $sql);
+    if ($result) {
+        $_SESSION['statusupdate'] = 'Record Updated Successfully!';
+        header('location:plantation_management.php');
     } else {
-        // Error message if insertion fails
-        echo "Error: " . $sql . "<br>" . $conn->error;
+        die(mysqli_error($conn));
     }
 }
-
 ?>
-
-
 
 <!doctype html>
 <html lang="en">
@@ -42,11 +34,11 @@ if (isset($_POST['submit'])) {
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
     <link rel="stylesheet" type="text/css" href="styles.css">
 
-    <title>Fill QR Details</title>
+    <title>Update QR Details</title>
 </head>
 
 <body class="bg-light-5 ">
-    <h2 class="text-center my-5" style="color: #30bf32;">Fill the QR Details</h2>
+    <h2 class="text-center my-5" style="color: #30bf32;">Update the QR Details</h2>
     <div class="container my-5 bg-light p-5 transparent-container "
         style="max-width: 800px; opacity: 0.75; border-radius: 10px;">
         <form method="post">

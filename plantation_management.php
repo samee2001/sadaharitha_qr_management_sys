@@ -38,22 +38,25 @@ $total_pages = ceil($total_records / $records_per_page);
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
 
 </head>
+
 <body>
     <?php include 'components/navbar.php'; ?>
     <br><br><br>
     <h2 class="text-center my-5">Plantation Management QR Details</h2>
     <div class="container my-5 bg-light p-5">
-        <button type="button" class="btn btn-primary"><a href="add_details.php" class="text-light">Add QR Details</a></button>
+        <button type="button" class="btn btn-success"><a href="add_details.php"
+                class="text-light text-decoration-none">Add QR Details</a></button>
         <table class="table my-5">
             <thead>
                 <tr>
                     <th scope="col">ID</th>
-                    <th scope="col">Updater Name</th>
+                    <th scope="col">Name</th>
                     <th scope="col">Email</th>
                     <th scope="col">Range</th>
                     <th scope="col">Date</th>
                     <th scope="col">Time</th>
-                    <th scope="col">Estate</th>
+                    <th scope="col">Issued Estate</th>
+                    <th scope="col">Action</th>
                 </tr>
             </thead>
             <tbody>
@@ -69,7 +72,7 @@ $total_pages = ceil($total_records / $records_per_page);
                         echo "<td>" . htmlspecialchars($row['date']) . "</td>";
                         echo "<td>" . htmlspecialchars($row['time']) . "</td>";
                         echo "<td>" . htmlspecialchars($row['estate']) . "</td>";
-
+                        echo "<td><button type='button' class='btn btn-primary'><a href='update_page.php?updateid=" . $row["id"] . "' class='text-light text-decoration-none'>Update</a></button></td>";
                         echo "</tr>";
                     }
                 } else {
@@ -90,7 +93,7 @@ $total_pages = ceil($total_records / $records_per_page);
 
                 // Display page numbers
                 for ($i = 1; $i <= $total_pages; $i++) {
-                    echo '<li class="page-item ' . ($i == $page ? 'active' : '') . '"><a class="page-link" href="?page=' . $i . '">' . $i . '</a></li>';
+                    echo '<li class="page-item text-success fw-bold ' . ($i == $page ? 'active' : '') . '"><a class="page-link" href="?page=' . $i . '">' . $i . '</a></li>';
                 }
 
                 // Display Next button
