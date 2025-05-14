@@ -22,9 +22,10 @@ $mysqli = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME);
 if ($mysqli->connect_error) {
     die("Connection failed: " . $mysqli->connect_error);
 }
+
+$generateSucess = false;
 // Check if the form is submitted for PDF generation
 if (isset($_POST['generate'])) {
-
     $params = [
         'start' => (int) ($_POST['rangeStart'] ?? 1),
         'step' => (int) ($_POST['rangeStep'] ?? 1),
@@ -42,11 +43,11 @@ if (isset($_POST['generate'])) {
         $sql = "INSERT INTO qr_management (updater_name, email, field, date, time, estate) 
             VALUES ('$userName', '$email', '$field', now(), now(), '$estate')";
         $mysqli->query($sql);*/
+        $generateSucess = true;
         header('Content-Type: application/pdf');
         header('Content-Disposition: attachment; filename="QR_Codes.pdf"');
         echo $pdfContent;
         header("Location: plantation_management.php");
-        echo 'plant';
         exit;
     } catch (Exception $e) {
         echo '<div class="alert alert-danger">Error: ' . htmlspecialchars($e->getMessage()) . '</div>';
@@ -65,10 +66,17 @@ if (isset($_POST['generate'])) {
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
 </head>
+
 <body>
     <?php include 'components/navbar.php'; ?>
     <br>
     <br>
+    <?php if ($generateSucess): ?>
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            ✅ PDF generated and processed successfully!
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    <?php endif; ?>
     <!-- Start of the new form -->
     <div class="card p-4 mx-auto " style="max-width: 700px;">
         <form method="post" enctype="multipart/form-data" id="myForm">
