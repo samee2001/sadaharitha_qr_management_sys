@@ -39,14 +39,14 @@ $total_pages = ceil($total_records / $records_per_page);
 
 </head>
 
-<body>
+<body style="background-color:rgb(194, 244, 199) ;">
     <?php include 'components/navbar.php'; ?>
     <br><br><br>
     <h2 class="text-center my-5">Plantation Management QR Details</h2>
-    <div class="container my-5 bg-light p-5">
+    <div class="container my-5 p-5" style="background-color: rgb(194, 244, 199); border: 1px solid rgb(114, 234, 126); border-radius: 10px;">
         <button type="button" class="btn btn-success"><a href="add_details.php"
                 class="text-light text-decoration-none">Add QR Details</a></button>
-        <table class="table my-5">
+        <table class="table my-5" >
             <thead>
                 <tr>
                     <th scope="col">ID</th>
@@ -59,7 +59,7 @@ $total_pages = ceil($total_records / $records_per_page);
                     <th scope="col">Action</th>
                 </tr>
             </thead>
-            <tbody>
+            <tbody >
                 <?php
                 // Fetch and display each row from the database
                 if ($result->num_rows > 0) {

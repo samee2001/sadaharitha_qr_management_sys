@@ -21,7 +21,7 @@
                         <a class="nav-link" href="plantation_management.php" target="_blank">QR Details</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="#" target="_blank">Estate Management</a>
+                        <a class="nav-link" href="estate_management.php" target="_blank">Estate Management</a>
                     <li class="nav-item">
                         <a class="nav-link" href="about.php" target="_blank">About</a>
                     </li>
