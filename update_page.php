@@ -33,14 +33,21 @@ if (isset($_POST['submit'])) {
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.4.1/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
     <link rel="stylesheet" type="text/css" href="styles.css">
-
     <title>Update QR Details</title>
+
+    <style>
+        .btn:hover {
+            background-color: white !important;
+            color: black !important;
+        }
+    </style>
 </head>
 
 <body class="bg-light">
     <div class="container my-5">
         <h2 class="text-center my-3" style="color: rgb(210, 234, 211);">Update the QR Details</h2>
-        <h4 class="text-center my-3" style="color:rgb(210, 234, 211);">Please fill the details below to update the Record</h4>
+        <h4 class="text-center my-3" style="color:rgb(210, 234, 211);">Please fill the details below to update the
+            Record</h4>
 
         <div class="card p-4 mx-auto bg-light" style="max-width: 800px; opacity: 0.85; border-radius: 10px;">
             <form method="post" id="updateForm">
@@ -51,7 +58,8 @@ if (isset($_POST['submit'])) {
                         <div class="input-group-prepend">
                             <span class="input-group-text"><i class="bi bi-person"></i></span>
                         </div>
-                        <input type="text" class="form-control" placeholder="Enter Your Name" name="name" id="name" required >
+                        <input type="text" class="form-control" placeholder="Enter Your Name" name="name" id="name"
+                            required>
                     </div>
                 </div>
 
@@ -62,7 +70,8 @@ if (isset($_POST['submit'])) {
                         <div class="input-group-prepend">
                             <span class="input-group-text"><i class="bi bi-envelope"></i></span>
                         </div>
-                        <input type="email" class="form-control" placeholder="Enter Your Email" name="email" id="email" required>
+                        <input type="email" class="form-control" placeholder="Enter Your Email" name="email" id="email"
+                            required>
                     </div>
                 </div>
 
@@ -73,7 +82,8 @@ if (isset($_POST['submit'])) {
                         <div class="input-group-prepend">
                             <span class="input-group-text"><i class="bi bi-hash"></i></span>
                         </div>
-                        <input type="text" class="form-control" placeholder="Enter Your QR Range" name="range" id="range">
+                        <input type="text" class="form-control" placeholder="Enter Your QR Range" name="range"
+                            id="range">
                     </div>
                 </div>
 
@@ -104,8 +114,8 @@ if (isset($_POST['submit'])) {
                 </div>
 
                 <!-- Submit Button -->
-                <div class="text-center">
-                    <button type="submit" class="btn btn-success btn-lg" name="submit">Submit</button>
+                <div class="btn" style="width: 100%; background-color: green;"><button type="submit" name="submit" class="btn"
+                        style=" background-color: green; border: none; width: 100%; color: white; font-size: 17px;">Update</button>
                 </div>
             </form>
         </div>
@@ -116,4 +126,5 @@ if (isset($_POST['submit'])) {
     <!-- Bootstrap Icons -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.js"></script>
 </body>
+
 </html>

@@ -1,4 +1,4 @@
-<nav class="navbar navbar-expand-lg navbar-dark bg-success fixed-top shadow-sm  mb-4 px-3">
+<nav class="navbar navbar-expand-lg navbar-dark bg-success fixed-top shadow-sm  mb-4 px-3 ">
         <div class="container-fluid">
             <a class="navbar-brand d-flex align-items-center" href="https://www.sadaharitha.com" target="_blank"
                 rel="noopener">
@@ -10,8 +10,8 @@
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse justify-content-center" id="navbarNav">
-                <ul class="navbar-nav">
-                    <li class="nav-item">
+                <ul class="navbar-nav" >
+                    <li class="nav-item " >
                         <a class="nav-link" aria-current="page" href="index.php"  target="_blank">Handle CSV</a>
                     </li>
                     <li class="nav-item">

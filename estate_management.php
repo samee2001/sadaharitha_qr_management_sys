@@ -5,14 +5,34 @@ session_start();
 // Include the database connection
 include 'connect.php';
 
-// Check if the form is submitted
 if (isset($_POST['submit'])) {
     // Sanitize and assign POST data to variables
     $name = mysqli_real_escape_string($conn, $_POST['estate_name']);
     $plantType = mysqli_real_escape_string($conn, $_POST['plant_type']);
     $landCalled = mysqli_real_escape_string($conn, $_POST['land_called']);
 
-    // Prepare the SQL query using prepared statements
+    // Check for duplicate estate name
+    $check_sql = "SELECT estate_name FROM estate WHERE estate_name = ?";
+    $check_stmt = mysqli_prepare($conn, $check_sql);
+    
+    if ($check_stmt) {
+        mysqli_stmt_bind_param($check_stmt, "s", $name);
+        mysqli_stmt_execute($check_stmt);
+        mysqli_stmt_store_result($check_stmt);
+        
+        if (mysqli_stmt_num_rows($check_stmt) > 0) {
+            // Duplicate found - set error message and redirect
+            $_SESSION['status'] = 'Error: Estate with this name already exists!';
+            header('Location: estate_management.php');
+            mysqli_stmt_close($check_stmt);
+            exit();
+        }
+        mysqli_stmt_close($check_stmt);
+    } else {
+        die("Error preparing check query: " . mysqli_error($conn));
+    }
+
+    // Proceed with insertion if no duplicate found
     $sql = "INSERT INTO `estate` (`estate_name`, `plant_type`, `land_called`) VALUES (?, ?, ?)";
 
     if ($stmt = mysqli_prepare($conn, $sql)) {
@@ -23,16 +43,14 @@ if (isset($_POST['submit'])) {
         if (mysqli_stmt_execute($stmt)) {
             // Set success message in the session
             $_SESSION['status'] = 'Record Inserted Successfully!';
-
-            // Redirect to plantation_management.php
+            // Redirect to estate_management.php
             header('Location: estate_management.php');
-            exit(); // Ensure no further code is executed after the redirect
+            mysqli_stmt_close($stmt);
+            exit();
         } else {
             // Handle error if statement execution fails
             die("Error executing query: " . mysqli_error($conn));
         }
-
-        // Close the statement
     } else {
         // Handle error if statement preparation fails
         die("Error preparing query: " . mysqli_error($conn));
@@ -48,21 +66,22 @@ if (isset($_POST['submit'])) {
     <title>Estate Management</title>
 
     <!-- Bootstrap CSS -->
+    <link rel="stylesheet" type="text/css" href="estate.css">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
 
 </head>
 
-<body style="background-color: rgb(194, 244, 199);">
+<body style="background-color: rgb(194, 244, 199);" class="bodyStyle">
     <div class="container my-5">
         <div class="text-center mb-4">
             <br>
             <br>
             <h1 class="fw-bold text-success">Manage Estates</h1>
-            <p class="text-muted fw-semibold" style="color: rgb(114, 234, 126);">Add a New Estate Details to the System
+            <p class="text-success fw-semibold ">Add a New Estate Details to the System
             </p>
         </div>
-    
+
         <?php include 'components/navbar.php'; ?>
         <!-- Success Message Card -->
         <?php if (isset($_SESSION['status'])): ?>
@@ -97,10 +116,12 @@ if (isset($_POST['submit'])) {
                     <input type="text" class="form-control" id="landCalled" name="land_called" required>
                 </div>
                 <div class="mb-2">
-                    <button type="submit" class="btn btn-success w-100" name="submit">Add Estate</button>
+                    <button type="submit" class="btn btn-success w-100" name="submit" id="submitButton" >Add
+                        Estate</button>
                 </div>
             </form>
         </div>
+        <?php include 'components/footer.php'; ?>    
     </div>
     <script src="success_message.js"></script>
 </body>

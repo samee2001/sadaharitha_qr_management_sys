@@ -35,14 +35,6 @@ if (isset($_POST['generate'])) {
     ];
     try {
         $pdfContent = generateQRPDF($mysqli, $tableName = "plant_data", $params);
-        //need a sql query to pass value to the table qr_management with values of generated date, time and login email, user name, field and estate
-        /*$email = $_SESSION['email'];
-        $userName = $_SESSION['name'];
-        $field = $_POST['rangeStart'] . '-' . ($_POST['rangeStart'] + $_POST['rangeStep'] - 1);
-        $estate = $_POST['estate'];
-        $sql = "INSERT INTO qr_management (updater_name, email, field, date, time, estate) 
-            VALUES ('$userName', '$email', '$field', now(), now(), '$estate')";
-        $mysqli->query($sql);*/
         $generateSucess = true;
         header('Content-Type: application/pdf');
         header('Content-Disposition: attachment; filename="QR_Codes.pdf"');
@@ -129,6 +121,8 @@ if (isset($_POST['generate'])) {
             </div>
         </form>
     </div>
+    <br>
+    <?php include 'components/footer.php'; ?>
     <script src="capture_datetime.js"></script>
     <!-- End of the new form -->
     <!-- Bootstrap JS -->

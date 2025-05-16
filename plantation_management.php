@@ -104,6 +104,7 @@ $total_pages = ceil($total_records / $records_per_page);
             </ul>
         </nav>
     </div>
+    <?php include 'components/footer.php'; ?>
 </body>
 
 </html>

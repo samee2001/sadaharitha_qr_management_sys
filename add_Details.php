@@ -40,6 +40,14 @@ if (isset($_POST['submit'])) {
     <link rel="stylesheet" type="text/css" href="styles.css">
 
     <title>Fill QR Details</title>
+
+    <style>
+        .btn:hover {
+            background-color: white !important;
+            color: black !important;
+            
+        }
+    </style>
 </head>
 
 <body class="bg-light">
@@ -57,7 +65,8 @@ if (isset($_POST['submit'])) {
                         <div class="input-group-prepend">
                             <span class="input-group-text"><i class="bi bi-person"></i></span>
                         </div>
-                        <input type="text" class="form-control" placeholder="Enter Your Name" name="name" id="name" required>
+                        <input type="text" class="form-control" placeholder="Enter Your Name" name="name" id="name"
+                            required>
                     </div>
                 </div>
 
@@ -68,7 +77,8 @@ if (isset($_POST['submit'])) {
                         <div class="input-group-prepend">
                             <span class="input-group-text"><i class="bi bi-envelope"></i></span>
                         </div>
-                        <input type="email" class="form-control" placeholder="Enter Your Email" name="email" id="email" required>
+                        <input type="email" class="form-control" placeholder="Enter Your Email" name="email" id="email"
+                            required>
                     </div>
                 </div>
 
@@ -111,8 +121,9 @@ if (isset($_POST['submit'])) {
                 </div>
 
                 <!-- Submit Button -->
-                <div class="text-center">
-                    <button type="submit" class="btn btn-success btn-lg" name="submit">Submit</button>
+                <div class="btn" style="width: 100%; background-color: green;"><button type="submit" name="submit"
+                        style="background-color: green; border: none; width: 100%; color: white; font-size: 17px;"
+                        class="btn">Add Details</button>
                 </div>
             </form>
         </div>
