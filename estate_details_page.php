@@ -1,6 +1,5 @@
 <?php
 session_start();
-
 include 'connect.php'; // Include your database connection file
 
 
@@ -14,17 +13,18 @@ $page = isset($_GET['page']) ? (int) $_GET['page'] : 1;
 $start_from = ($page - 1) * $records_per_page;
 
 // Fetch data for the current page
-$sql = "SELECT * FROM `qr_management` LIMIT $start_from, $records_per_page";
+$sql = "SELECT * FROM `estate` LIMIT $start_from, $records_per_page";
 $result = $conn->query($sql);
 
 // Fetch total number of records to calculate total pages
-$total_records_query = "SELECT COUNT(*) as total_records FROM `qr_management`";
+$total_records_query = "SELECT COUNT(*) as total_records FROM `estate`";
 $total_records_result = $conn->query($total_records_query);
 $total_records_row = $total_records_result->fetch_assoc();
 $total_records = $total_records_row['total_records'];
 
 // Calculate total pages
 $total_pages = ceil($total_records / $records_per_page);
+
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -32,7 +32,7 @@ $total_pages = ceil($total_records / $records_per_page);
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Plantation Management</title>
+    <title>Estate Management</title>
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
@@ -42,37 +42,60 @@ $total_pages = ceil($total_records / $records_per_page);
 <body style="background-image: url('sdh_bg_2.png'); background-size: cover;">
     <?php include 'components/navbar.php'; ?>
     <br><br><br>
-    <h2 class="text-center my-5">Plantation Management QR Details</h2>
-    <div class="container my-5 p-5" style="background-color: rgb(231, 231, 231); border: 1px solid rgb(114, 234, 126); border-radius: 10px; opacity: 0.8;">
-        <button type="button" class="btn btn-success"><a href="add_details.php"
-                class="text-light text-decoration-none">Add QR Details</a></button>
-        <table class="table my-5" >
+    <?php
+    if (isset($_SESSION['statusupdate'])) {
+        ?>
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <strong>Success!</strong> <?php echo $_SESSION['statusupdate']; ?>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+        <?php
+        echo $_SESSION['statusupdate'];
+        unset($_SESSION['statusupdate']);
+    }
+    if (isset($_SESSION['statusdelete'])) {
+        ?>
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <strong>Success!</strong> <?php echo $_SESSION['statusdelete']; ?>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+        <?php
+        echo $_SESSION['statusdelete'];
+        unset($_SESSION['statusdelete']);
+    }
+    ?>
+    <div class="container my-3 p-3 w-75 "
+        style="background-color: rgb(231, 231, 231); border: 1px solid rgb(114, 234, 126); border-radius: 10px; opacity: 0.8;">
+        <button type="button" class="btn btn-success"><a href="estate_management.php"
+                class="text-light text-decoration-none">Add Estate</a></button>
+        <table class="table my-4">
             <thead>
                 <tr>
                     <th scope="col">ID</th>
-                    <th scope="col">Name</th>
-                    <th scope="col">Email</th>
-                    <th scope="col">Range</th>
-                    <th scope="col">Date</th>
-                    <th scope="col">Time</th>
-                    <th scope="col">Issued Estate</th>
-                    <th scope="col">Action</th>
+                    <th scope="col">Estate Name</th>
+                    <th scope="col">Plant Type</th>
+                    <th scope="col">Land Called</th>
+                    <th scope="col" class="text-center">Action</th>
                 </tr>
             </thead>
-            <tbody >
+            <tbody>
                 <?php
                 // Fetch and display each row from the database
                 if ($result->num_rows > 0) {
                     while ($row = $result->fetch_assoc()) {
                         echo "<tr>";
                         echo "<td>" . htmlspecialchars($row['id']) . "</td>";
-                        echo "<td>" . htmlspecialchars($row['updater_name']) . "</td>";
-                        echo "<td>" . htmlspecialchars($row['email']) . "</td>";
-                        echo "<td>" . htmlspecialchars($row['field']) . "</td>";
-                        echo "<td>" . htmlspecialchars($row['date']) . "</td>";
-                        echo "<td>" . htmlspecialchars($row['time']) . "</td>";
-                        echo "<td>" . htmlspecialchars($row['estate']) . "</td>";
-                        echo "<td><button type='button' class='btn btn-primary'><a href='update_page.php?updateid=" . $row["id"] . "' class='text-light text-decoration-none'>Update</a></button></td>";
+                        echo "<td>" . htmlspecialchars($row['estate_name']) . "</td>";
+                        echo "<td>" . htmlspecialchars($row['plant_type']) . "</td>";
+                        echo "<td>" . htmlspecialchars($row['land_called']) . "</td>";
+                        echo "<td><button type='button' class='btn btn-primary '><a href='update_page_estate.php?updateid=" . $row["id"] . "' class='text-light text-decoration-none' style=''>Update</a></button></td>";
+                        echo "<td>
+    <a href='delete_page_estate.php?deleteid=" . $row["id"] . "' 
+       class='btn btn-danger text-light text-decoration-none'
+       onclick='return confirm(\"Are you sure you want to delete this record?\");'>
+       Delete
+    </a>
+</td>";
                         echo "</tr>";
                     }
                 } else {
@@ -81,7 +104,6 @@ $total_pages = ceil($total_records / $records_per_page);
                 ?>
             </tbody>
         </table>
-
         <!-- Pagination -->
         <nav aria-label="Page navigation example">
             <ul class="pagination justify-content-center">
@@ -90,12 +112,10 @@ $total_pages = ceil($total_records / $records_per_page);
                 if ($page > 1) {
                     echo '<li class="page-item"><a class="page-link" href="?page=' . ($page - 1) . '">Previous</a></li>';
                 }
-
                 // Display page numbers
                 for ($i = 1; $i <= $total_pages; $i++) {
                     echo '<li class="page-item text-success fw-bold ' . ($i == $page ? 'active' : '') . '"><a class="page-link" href="?page=' . $i . '">' . $i . '</a></li>';
                 }
-
                 // Display Next button
                 if ($page < $total_pages) {
                     echo '<li class="page-item"><a class="page-link" href="?page=' . ($page + 1) . '">Next</a></li>';

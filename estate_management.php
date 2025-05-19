@@ -14,12 +14,12 @@ if (isset($_POST['submit'])) {
     // Check for duplicate estate name
     $check_sql = "SELECT estate_name FROM estate WHERE estate_name = ?";
     $check_stmt = mysqli_prepare($conn, $check_sql);
-    
+
     if ($check_stmt) {
         mysqli_stmt_bind_param($check_stmt, "s", $name);
         mysqli_stmt_execute($check_stmt);
         mysqli_stmt_store_result($check_stmt);
-        
+
         if (mysqli_stmt_num_rows($check_stmt) > 0) {
             // Duplicate found - set error message and redirect
             $_SESSION['status'] = 'Error: Estate with this name already exists!';
@@ -43,8 +43,8 @@ if (isset($_POST['submit'])) {
         if (mysqli_stmt_execute($stmt)) {
             // Set success message in the session
             $_SESSION['status'] = 'Record Inserted Successfully!';
-            // Redirect to estate_management.php
-            header('Location: estate_management.php');
+            // Redirect to estate_management.php after 3 seconds 
+            header('Location: estate_details_page.php');
             mysqli_stmt_close($stmt);
             exit();
         } else {
@@ -63,7 +63,7 @@ if (isset($_POST['submit'])) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Estate Management</title>
+    <title>Add Estate</title>
 
     <!-- Bootstrap CSS -->
     <link rel="stylesheet" type="text/css" href="estate.css">
@@ -72,7 +72,7 @@ if (isset($_POST['submit'])) {
 
 </head>
 
-<body style="background-color: rgb(194, 244, 199);" class="bodyStyle">
+<body style="background-image: url('sdh_bg_2.png'); background-size: cover;">
     <div class="container my-5">
         <div class="text-center mb-4">
             <br>
@@ -95,7 +95,6 @@ if (isset($_POST['submit'])) {
             </div>
             <?php unset($_SESSION['status']); ?>
         <?php endif; ?>
-
         <div class="card p-4 mx-auto"
             style="max-width: 700px; background-color:rgb(194, 244, 199); color: black; opacity: 0.85; border: 1px solid rgb(114, 234, 126);">
             <form method="post" enctype="multipart/form-data" id="myForm">
@@ -116,12 +115,12 @@ if (isset($_POST['submit'])) {
                     <input type="text" class="form-control" id="landCalled" name="land_called" required>
                 </div>
                 <div class="mb-2">
-                    <button type="submit" class="btn btn-success w-100" name="submit" id="submitButton" >Add
+                    <button type="submit" class="btn btn-success w-100" name="submit" id="submitButton">Add
                         Estate</button>
                 </div>
             </form>
         </div>
-        <?php include 'components/footer.php'; ?>    
+        <?php include 'components/footer.php'; ?>
     </div>
     <script src="success_message.js"></script>
 </body>

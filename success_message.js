@@ -13,6 +13,6 @@ document.addEventListener('DOMContentLoaded', function() {
             setTimeout(() => {
                 successAlert.style.display = 'none';
             }, 300);
-        }, 2000);
+        },1000);
     }
 });

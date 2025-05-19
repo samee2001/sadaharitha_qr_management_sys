@@ -120,6 +120,7 @@ if (isset($_POST['upload'])) {
             <p class="text-muted">All Rights Reserved @Sadaharitha Plantations Limited IT Department.</p>
         </div>
     </div>
+    <?php include 'components/footer.php'; ?>
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 </body>
