@@ -41,7 +41,7 @@ $total_pages = ceil($total_records / $records_per_page);
 
 <body style="background-image: url('sdh_bg_2.png'); background-size: cover;">
     <?php include 'components/navbar.php'; ?>
-    <br><br><br>
+    <br><br><br><br>
     <?php
     if (isset($_SESSION['statusupdate'])) {
         ?>
@@ -88,14 +88,10 @@ $total_pages = ceil($total_records / $records_per_page);
                         echo "<td>" . htmlspecialchars($row['estate_name']) . "</td>";
                         echo "<td>" . htmlspecialchars($row['plant_type']) . "</td>";
                         echo "<td>" . htmlspecialchars($row['land_called']) . "</td>";
-                        echo "<td><button type='button' class='btn btn-primary '><a href='update_page_estate.php?updateid=" . $row["id"] . "' class='text-light text-decoration-none' style=''>Update</a></button></td>";
-                        echo "<td>
-    <a href='delete_page_estate.php?deleteid=" . $row["id"] . "' 
-       class='btn btn-danger text-light text-decoration-none'
-       onclick='return confirm(\"Are you sure you want to delete this record?\");'>
-       Delete
-    </a>
-</td>";
+                        echo "<td class='text-center'>";
+                        echo "<a href='update_page_estate.php?updateid=" . $row["id"] . "' class='btn btn-primary btn-sm me-2 text-light text-decoration-none'>Update</a>";
+                        echo "<a href='delete_page_estate.php?deleteid=" . $row["id"] . "' class='btn btn-danger btn-sm text-light text-decoration-none' onclick='return confirm(\"Are you sure you want to delete this record?\");'>Delete</a>";
+                        echo "</td>";
                         echo "</tr>";
                     }
                 } else {

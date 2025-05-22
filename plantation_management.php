@@ -32,7 +32,7 @@ $total_pages = ceil($total_records / $records_per_page);
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Plantation Management</title>
+    <title>QR Details</title>
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
@@ -41,8 +41,8 @@ $total_pages = ceil($total_records / $records_per_page);
 
 <body style="background-image: url('sdh_bg_2.png'); background-size: cover;">
     <?php include 'components/navbar.php'; ?>
-    <br><br><br>
-    <h2 class="text-center my-5">Plantation Management QR Details</h2>
+    <br><br><br><br>
+    
     <div class="container my-5 p-5" style="background-color: rgb(231, 231, 231); border: 1px solid rgb(114, 234, 126); border-radius: 10px; opacity: 0.8;">
         <button type="button" class="btn btn-success"><a href="add_details.php"
                 class="text-light text-decoration-none">Add QR Details</a></button>

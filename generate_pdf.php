@@ -119,6 +119,7 @@ if (isset($_POST['generate'])) {
             <div class="text-center">
                 <button type="submit" name="generate" class="btn btn-primary btn-custom">Generate PDF</button>
             </div>
+           
         </form>
     </div>
     <br>

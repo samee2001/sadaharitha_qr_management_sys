@@ -61,6 +61,7 @@ if (isset($_POST['submit'])) {
         }
     </style>
 </head>
+
 <body class="bg-light">
     <div class="container my-5">
         <h2 class="text-center my-3" style="color: rgb(210, 234, 211);">Update Estate Details</h2>
@@ -76,7 +77,7 @@ if (isset($_POST['submit'])) {
                             <span class="input-group-text"><i class="bi bi-house"></i></span>
                         </div>
                         <input type="text" class="form-control" placeholder="Enter Estate Name" name="ename" id="ename"
-                            required>
+                            value="<?php echo htmlspecialchars($row['estate_name']); ?>" required>
                     </div>
                 </div>
 
@@ -87,7 +88,8 @@ if (isset($_POST['submit'])) {
                         <div class="input-group-prepend">
                             <span class="input-group-text"><i class="bi bi-hash"></i></span>
                         </div>
-                        <input type="text" class="form-control" placeholder="Enter Land Called" name="land" id="land">
+                        <input type="text" class="form-control" placeholder="Enter Land Called" name="land" id="land"
+                            value="<?php echo htmlspecialchars($row['land_called']); ?>">
                     </div>
                 </div>
 
@@ -99,18 +101,20 @@ if (isset($_POST['submit'])) {
                             <span class="input-group-text"><i class="bi bi-tree"></i></span>
                         </div>
                         <select name="plant_type" class="form-control" id="plant_type" required>
-                            <option value="" disabled selected>Select Plant Type</option>
-                            <option value="Agarwood">Agarwood</option>
-                            <option value="Vanilla">Vanilla</option>
-                            <option value="Sandalwood">Sandalwood</option>
+                            <option value="" disabled>Select Plant Type</option>
+                            <option value="Agarwood" <?php echo ($row['plant_type'] == 'Agarwood') ? 'selected' : ''; ?>>
+                                Agarwood</option>
+                            <option value="Vanilla" <?php echo ($row['plant_type'] == 'Vanilla') ? 'selected' : ''; ?>>
+                                Vanilla</option>
+                            <option value="Sandalwood" <?php echo ($row['plant_type'] == 'Sandalwood') ? 'selected' : ''; ?>>Sandalwood</option>
                         </select>
                     </div>
                 </div>
 
                 <!-- Submit Button -->
-                <div class="btn" style="width: 100%; background-color: green;"><button type="submit" name="submit"
-                        class="btn"
-                        style=" background-color: green; border: none; width: 100%; color: white; font-size: 17px;">Update</button>
+                <div class="btn" style="width: 100%; background-color: green;">
+                    <button type="submit" name="submit" class="btn"
+                        style="background-color: green; border: none; width: 100%; color: white; font-size: 17px;">Update</button>
                 </div>
             </form>
         </div>

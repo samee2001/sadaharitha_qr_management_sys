@@ -1,7 +1,6 @@
 <?php
 session_start();
-include('functions/handle_csv.php'); 
-
+include('functions/handle_csv.php');
 // Database Configuration
 define('DB_HOST', 'localhost');
 define('DB_USER', 'root');
@@ -17,7 +16,7 @@ $mysqli = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME);
 if ($mysqli->connect_error) {
     die("Connection failed: " . $mysqli->connect_error);
 }
-$tableName = 'plant_data'; 
+$tableName = 'plant_data';
 $uploadSuccess = false;
 //$uploadSuccess = processCSVUpload($mysqli, $_FILES['csvfile'], $tableName);  //return true or false.
 if (isset($_POST['upload'])) {
@@ -26,7 +25,7 @@ if (isset($_POST['upload'])) {
         $_FILES['csvfile'],
         $tableName,
     );
-    
+
     if ($uploadResult['success']) {
         // Show success message (you already have this)
         $uploadSuccess = true;
@@ -78,11 +77,6 @@ if (isset($_POST['upload'])) {
             <h1 class="fw-bold text-success">Sadaharitha QR Code Management System</h1>
             <p class="text-muted fw-semibold text-success">Upload data and generate QR codes in one click</p>
         </div>
-        <div class="position-fixed top-0 end-0 p-3" style="z-index: 1050;">
-            <a href="logout.php" class="btn btn-outline-danger">
-                <i class="bi bi-box-arrow-right"></i> Logout
-            </a>
-        </div>
         <?php if ($uploadSuccess): ?>
             <div class="alert alert-success alert-dismissible fade show" role="alert">
                 ✅ CSV file uploaded and processed successfully!
@@ -90,7 +84,7 @@ if (isset($_POST['upload'])) {
             </div>
         <?php endif; ?>
         <div class="card p-4 mx-auto " style="max-width: 700px;">
-            <form method="post" enctype="multipart/form-data" id="myForm" >
+            <form method="post" enctype="multipart/form-data" id="myForm">
                 <h4 class="mb-3">1️⃣ Upload CSV File</h4>
                 <div class="mb-3">
                     <label for="csvfile" class="form-label">Choose CSV File</label>
@@ -112,12 +106,10 @@ if (isset($_POST['upload'])) {
                     </select>
                 </div>
                 <div class="text-center"><button type="submit" name="upload"
-                        class="btn btn-success mb-4 btn-custom ">Upload CSV</button></div>
+                        class="btn btn-success mb-4 btn-custom ">Upload CSV</button>
+                </div>
                 <hr>
             </form>
-        </div>
-        <div class="text-center mt-4">
-            <p class="text-muted">All Rights Reserved @Sadaharitha Plantations Limited IT Department.</p>
         </div>
     </div>
     <?php include 'components/footer.php'; ?>

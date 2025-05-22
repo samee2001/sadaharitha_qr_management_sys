@@ -1,14 +1,13 @@
 <?php
-include 'connect.php'; // Ensure database connection
-
+session_start();
+include 'connect.php';
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     // Get user input
     $email = $_POST['email'];
     $password = $_POST['password'];
 
-
-    // Prepare the SQL query to fetch the user from the 'admin' table
-    $stmt = $conn->prepare("SELECT id, name, password, email FROM admin WHERE email = ?");
+    // Prepare the SQL query to fetch the user from the 'users' table
+    $stmt = $conn->prepare("SELECT id, name, password, email, role, handle_csv_privillages, gen_qr_privillages, qr_details_privillages, estate_privillages FROM users WHERE email = ?");
     $stmt->bind_param("s", $email);
     $stmt->execute();
     $result = $stmt->get_result();
@@ -19,13 +18,20 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
         // Verify the password
         if (password_verify($password, $user['password'])) {
-            // Successful login, set session variables and pass the email and name into the generate_pdf.php
-            session_start();
+            // Successful login, set session variables
             $_SESSION['email'] = $email;
             $_SESSION['name'] = $user['name'];
-            
-            // Redirect the user to the index page after successful login
-            header("Location: index.php");
+            $_SESSION['role'] = $user['role'];
+            $_SESSION['handle_csv_privillages']= $user['handle_csv_privillages'];
+            $_SESSION['gen_qr_privillages']= $user['gen_qr_privillages'];
+            $_SESSION['qr_details_privillages']= $user['qr_details_privillages'];
+            $_SESSION['estate_privillages']= $user['estate_privillages'];            
+            // Redirect based on user role
+            if ($user['role'] === 'admin') {
+                header("Location: index.php");
+            } else {
+                header("Location: generate_pdf.php");
+            }
             exit();
         } else {
             // Invalid password
@@ -35,6 +41,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         // User not found
         $error = "User not found!";
     }
+
+    $stmt->close();
 }
 ?>
 <!doctype html>
