@@ -3,9 +3,19 @@
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
+
+// Extract session details into an array
+$sessionDetails = [];
+$sessionKeys = ['handle_csv_privillages', 'gen_qr_privillages', 'qr_details_privillages', 'estate_privillages', 'email'];
+foreach ($sessionKeys as $key) {
+    if (isset($_SESSION[$key])) {
+        $sessionDetails[$key] = $_SESSION[$key];
+    }
+}
 ?>
-<nav class="navbar navbar-expand-lg navbar-dark bg-success fixed-top shadow-sm mb-4 px-3">
-    <div class="container-fluid">
+
+<nav class="navbar navbar-expand-lg navbar-dark bg-success fixed-top shadow-sm mb-4 px-3 " style="opacity: 0.85; ">
+    <div class="container-fluid ">
         <!-- Logo -->
         <a class="navbar-brand d-flex align-items-center" href="https://www.sadaharitha.com" target="_blank"
             rel="noopener">
@@ -20,86 +30,130 @@ if (session_status() === PHP_SESSION_NONE) {
         </button>
         <!-- Navbar content -->
         <?php
+        // Render navbar if at least one relevant privilege is set
         if (
-            isset($_SESSION['handle_csv_privillages']) && $_SESSION['handle_csv_privillages'] > 20 && $_SESSION['handle_csv_privillages'] <= 30 &&
-            isset($_SESSION['gen_qr_privillages']) && $_SESSION['gen_qr_privillages'] > 20 && $_SESSION['gen_qr_privillages'] <= 30 &&
-            isset($_SESSION['qr_details_privillages']) && $_SESSION['qr_details_privillages'] > 20 && $_SESSION['qr_details_privillages'] <= 30 &&
-            isset($_SESSION['estate_privillages']) && $_SESSION['estate_privillages'] > 20 && $_SESSION['estate_privillages'] <= 30
+            isset($sessionDetails['handle_csv_privillages']) ||
+            isset($sessionDetails['gen_qr_privillages']) ||
+            isset($sessionDetails['qr_details_privillages']) ||
+            isset($sessionDetails['estate_privillages'])
         ): ?>
-            <!-- Full access navbar for Admin (20-30 range) -->
-            <div class="collapse navbar-collapse" style="margin-left: 350px;" id="navbarNav">
-                <ul class="navbar-nav">
-                    <li class="nav-item ">
-                        <a class="nav-link" aria-current="page" href="index.php" target="_blank">Handle CSV</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" aria-current="page" href="generate_pdf.php" target="_blank">Generate QR
-                            Codes</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="plantation_management.php" target="_blank">QR Details</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="estate_details_page.php" target="_blank">Estate Management</a>
-                    <li class="nav-item">
-                        <a class="nav-link" href="about.php" target="_blank">About</a>
-                    </li>
+            <div class="collapse navbar-collapse justify-content-center" style="margin-left: 350px; " id="navbarNav">
+                <ul class="navbar-nav ms-lg-5" style="content-visibility: hidden;">
+                    <?php
+                    // Admin-level privillages (>20 and <=30)
+                    if (isset($sessionDetails['handle_csv_privillages']) && $sessionDetails['handle_csv_privillages'] > 20 && $sessionDetails['handle_csv_privillages'] <= 30): ?>
+                        <li class="nav-item">
+                            <a class="nav-link<?php echo basename($_SERVER['PHP_SELF']) == 'index.php' ? ' active' : ''; ?>"
+                                href="index.php" target="_parent" rel="noopener">Handle CSV</a>
+                        </li>
+                    <?php endif; ?>
+                    <?php if (isset($sessionDetails['gen_qr_privillages']) && $sessionDetails['gen_qr_privillages'] > 20 && $sessionDetails['gen_qr_privillages'] <= 30): ?>
+                        <li class="nav-item">
+                            <a class="nav-link<?php echo basename($_SERVER['PHP_SELF']) == 'generate_pdf.php' ? ' active' : ''; ?>"
+                                href="generate_pdf.php" target="_parent" rel="noopener">Generate QR Codes</a>
+                        </li>
+                    <?php endif; ?>
+                    <?php if (isset($sessionDetails['qr_details_privillages']) && $sessionDetails['qr_details_privillages'] > 20 && $sessionDetails['qr_details_privillages'] <= 30): ?>
+                        <li class="nav-item">
+                            <a class="nav-link<?php echo basename($_SERVER['PHP_SELF']) == 'plantation_management.php' ? ' active' : ''; ?>"
+                                href="plantation_management.php" target="_parent" rel="noopener">QR Details</a>
+                        </li>
+                    <?php endif; ?>
+                    <?php if (isset($sessionDetails['estate_privillages']) && $sessionDetails['estate_privillages'] > 20 && $sessionDetails['estate_privillages'] <= 30): ?>
+                        <li class="nav-item">
+                            <a class="nav-link<?php echo basename($_SERVER['PHP_SELF']) == 'estate_details_page.php' ? ' active' : ''; ?>"
+                                href="estate_details_page.php" target="_parent" rel="noopener">Estate Management</a>
+                        </li>
+                    <?php endif; ?>
+                    <?php if (isset($sessionDetails['estate_privillages']) && $sessionDetails['estate_privillages'] > 20 && $sessionDetails['estate_privillages'] <= 30): ?>
+                        <li class="nav-item">
+                            <a class="nav-link<?php echo basename($_SERVER['PHP_SELF']) == 'estate_details_page.php' ? ' active' : ''; ?>"
+                                href="about.php" target="_parent" rel="noopener">About</a>
+                        </li>
+                    <?php endif; ?>
+
+
+                    <!-- Super User privillages (10-20) -->
+                    <?php if (
+                        (isset($sessionDetails['handle_csv_privillages']) && $sessionDetails['handle_csv_privillages'] > 10 && $sessionDetails['handle_csv_privillages'] <= 20) &&
+                        !(isset($sessionDetails['handle_csv_privillages']) && $sessionDetails['handle_csv_privillages'] > 20 && $sessionDetails['handle_csv_privillages'] <= 30)
+                    ): ?>
+                        <li class="nav-item">
+                            <a class="nav-link<?php echo basename($_SERVER['PHP_SELF']) == 'index.php' ? ' active' : ''; ?>"
+                                href="index.php" target="_parent" rel="noopener">Handle CSV</a>
+                        </li>
+                    <?php endif; ?>
+                    <?php if (
+                        (isset($sessionDetails['gen_qr_privillages']) && $sessionDetails['gen_qr_privillages'] > 10 && $sessionDetails['gen_qr_privillages'] <= 20) &&
+                        !(isset($sessionDetails['gen_qr_privillages']) && $sessionDetails['gen_qr_privillages'] > 20 && $sessionDetails['gen_qr_privillages'] <= 30)
+                    ): ?>
+                        <li class="nav-item">
+                            <a class="nav-link<?php echo basename($_SERVER['PHP_SELF']) == 'generate_pdf.php' ? ' active' : ''; ?>"
+                                href="generate_pdf.php" target="_parent" rel="noopener">Generate QR Codes</a>
+                        </li>
+                    <?php endif; ?>
+                    <?php if (
+                        (isset($sessionDetails['qr_details_privillages']) && $sessionDetails['qr_details_privillages'] > 10 && $sessionDetails['qr_details_privillages'] <= 20) &&
+                        !(isset($sessionDetails['qr_details_privillages']) && $sessionDetails['qr_details_privillages'] > 20 && $sessionDetails['qr_details_privillages'] <= 30)
+                    ): ?>
+                        <li class="nav-item">
+                            <a class="nav-link<?php echo basename($_SERVER['PHP_SELF']) == 'plantation_management.php' ? ' active' : ''; ?>"
+                                href="plantation_management.php" target="_parent" rel="noopener">QR Details</a>
+                        </li>
+                    <?php endif; ?>
+                    <?php if (
+                        (isset($sessionDetails['estate_privillages']) && $sessionDetails['estate_privillages'] > 10 && $sessionDetails['estate_privillages'] <= 20) &&
+                        !(isset($sessionDetails['estate_privillages']) && $sessionDetails['estate_privillages'] > 20 && $sessionDetails['estate_privillages'] <= 30)
+                    ): ?>
+                        <li class="nav-item">
+                            <a class="nav-link<?php echo basename($_SERVER['PHP_SELF']) == 'estate_details_page.php' ? ' active' : ''; ?>"
+                                href="estate_details_page.php" target="_parent" rel="noopener">Estate Management</a>
+                        </li>
+                    <?php endif; ?>
+                    <?php if (
+                        (isset($sessionDetails['qr_details_privillages']) && $sessionDetails['qr_details_privillages'] > 10 && $sessionDetails['qr_details_privillages'] <= 20) &&
+                        !(isset($sessionDetails['qr_details_privillages']) && $sessionDetails['qr_details_privillages'] > 20 && $sessionDetails['qr_details_privillages'] <= 30)
+                    ): ?>
+                        <li class="nav-item">
+                            <a class="nav-link<?php echo basename($_SERVER['PHP_SELF']) == 'plantation_management.php' ? ' active' : ''; ?>"
+                                href="about.php" target="_parent" rel="noopener">About</a>
+                        </li>
+                    <?php endif; ?>
+
+                    <!-- User privillages (0-10) -->
+                    <?php if (isset($sessionDetails['handle_csv_privillages']) && $sessionDetails['handle_csv_privillages'] > 0 && $sessionDetails['handle_csv_privillages'] <= 10): ?>
+                        <li class="nav-item">
+                            <a class="nav-link<?php echo basename($_SERVER['PHP_SELF']) == 'index.php' ? ' active' : ''; ?>"
+                                href="index.php" target="_parent" rel="noopener">Handle CSV</a>
+                        </li>
+                    <?php endif; ?>
+                    <?php if (isset($sessionDetails['gen_qr_privillages']) && $sessionDetails['gen_qr_privillages'] > 0 && $sessionDetails['gen_qr_privillages'] <= 10): ?>
+                        <li class="nav-item">
+                            <a class="nav-link<?php echo basename($_SERVER['PHP_SELF']) == 'generate_pdf.php' ? ' active' : ''; ?>"
+                                href="generate_pdf.php" target="_parent" rel="noopener">Generate QR Codes</a>
+                        </li>
+                    <?php endif; ?>
+                    <?php if (isset($sessionDetails['qr_details_privillages']) && $sessionDetails['qr_details_privillages'] > 0 && $sessionDetails['qr_details_privillages'] <= 10): ?>
+                        <li class="nav-item">
+                            <a class="nav-link<?php echo basename($_SERVER['PHP_SELF']) == 'plantation_management.php' ? ' active' : ''; ?>"
+                                href="plantation_management.php" target="_parent" rel="noopener">QR Details</a>
+                        </li>
+                    <?php endif; ?>
+                    <?php if (isset($sessionDetails['estate_privillages']) && $sessionDetails['estate_privillages'] > 0 && $sessionDetails['estate_privillages'] <= 10): ?>
+                        <li class="nav-item">
+                            <a class="nav-link<?php echo basename($_SERVER['PHP_SELF']) == 'estate_details_page.php' ? ' active' : ''; ?>"
+                                href="estate_details_page.php" target="_parent" rel="noopener">Estate Management</a>
+                        </li>
+                    <?php endif; ?>
+                    <?php if (isset($sessionDetails['gen_qr_privillages']) && $sessionDetails['gen_qr_privillages'] > 0 && $sessionDetails['gen_qr_privillages'] <= 10): ?>
+                        <li class="nav-item">
+                            <a class="nav-link<?php echo basename($_SERVER['PHP_SELF']) == 'about.php' ? ' active' : ''; ?>"
+                                href="about.php" target="_parent" rel="noopener">About</a>
+                        </li>
+                    <?php endif; ?>
                 </ul>
                 <!-- Logout button -->
-                <?php if (isset($_SESSION['email'])): ?>
-                    <div class="ms-auto p-2">
-                        <a href="logout.php" class="btn btn-outline-danger">
-                            <i class="bi bi-box-arrow-right"></i> Logout
-                        </a>
-                    </div>
-                <?php endif; ?>
-            </div>
-        <?php elseif (
-            isset($_SESSION['handle_csv_privillages']) && $_SESSION['handle_csv_privillages'] > 10 && $_SESSION['handle_csv_privillages'] <= 20 &&
-            isset($_SESSION['gen_qr_privillages']) && $_SESSION['gen_qr_privillages'] > 10 && $_SESSION['gen_qr_privillages'] <= 20 &&
-            isset($_SESSION['qr_details_privillages']) && $_SESSION['qr_details_privillages'] > 10 && $_SESSION['qr_details_privillages'] <= 20 &&
-            isset($_SESSION['estate_privillages']) && $_SESSION['estate_privillages'] > 10 && $_SESSION['estate_privillages'] <= 20
-        ): ?>
-            <!-- Partial access: Super User (10-20 range, Handle CSV, Generate QR Codes, QR Details) -->
-            <div class="collapse navbar-collapse " style="margin-left: 450px;" id=" navbarNav">
-                <ul class="navbar-nav ms-lg-5">
-                    <li class="nav-item">
-                        <a class="nav-link" href="generate_pdf.php" target="_blank">Generate QR Codes</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="plantation_management.php" target="_blank">QR Details</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="about.php" target="_blank">About</a>
-                    </li>
-                </ul>
-                <!-- Logout button -->
-                <?php if (isset($_SESSION['email'])): ?>
-                    <div class="ms-auto p-2">
-                        <a href="logout.php" class="btn btn-outline-danger">
-                            <i class="bi bi-box-arrow-right"></i> Logout
-                        </a>
-                    </div>
-                <?php endif; ?>
-            </div>
-        <?php elseif (
-            isset($_SESSION['handle_csv_privillages']) && $_SESSION['handle_csv_privillages'] >= 0 && $_SESSION['handle_csv_privillages'] <= 10 &&
-            isset($_SESSION['gen_qr_privillages']) && $_SESSION['gen_qr_privillages'] >= 0 && $_SESSION['gen_qr_privillages'] <= 10 &&
-            isset($_SESSION['qr_details_privillages']) && $_SESSION['qr_details_privillages'] >= 0 && $_SESSION['qr_details_privillages'] <= 10 &&
-            isset($_SESSION['estate_privillages']) && $_SESSION['estate_privillages'] >= 0 && $_SESSION['estate_privillages'] <= 10
-        ): ?>
-            <!-- Limited access: Basic User (0-10 range, Generate QR Codes and About only) -->
-            <div class="collapse navbar-collapse " style="margin-left: 500px;" id="navbarNav">
-                <ul class="navbar-nav ms-lg-5">
-                    <li class="nav-item">
-                        <a class="nav-link" href="generate_pdf.php" target="_blank">Generate QR Codes</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="about.php" target="_blank">About</a>
-                    </li>
-                </ul>
-                <!-- Logout button -->
-                <?php if (isset($_SESSION['email'])): ?>
+                <?php if (isset($sessionDetails['email'])): ?>
                     <div class="ms-auto p-2">
                         <a href="logout.php" class="btn btn-outline-danger">
                             <i class="bi bi-box-arrow-right"></i> Logout

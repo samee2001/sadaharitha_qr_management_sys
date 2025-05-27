@@ -1,5 +1,9 @@
 <?php
 session_start();
+if (!isset($_SESSION['email'])) {
+    header('Location: logIn.php');
+    exit();
+}
 include 'connect.php'; // Include your database connection file
 
 
@@ -40,7 +44,7 @@ $total_pages = ceil($total_records / $records_per_page);
 </head>
 
 <body style="background-image: url('sdh_bg_2.png'); background-size: cover;">
-    <?php include 'components/navbar.php'; ?>
+    <?php //include 'components/navbar.php'; ?>
     <br><br><br><br>
     <?php
     if (isset($_SESSION['statusupdate'])) {

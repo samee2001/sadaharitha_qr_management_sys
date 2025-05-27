@@ -1,5 +1,10 @@
 <?php
 // about.php
+session_start();
+if (!isset($_SESSION['email'])) {
+    header('Location: logIn.php');
+    exit();
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">

@@ -60,7 +60,7 @@ if (isset($_POST['generate'])) {
 </head>
 
 <body>
-    <?php include 'components/navbar.php'; ?>
+    <?php //include 'components/navbar.php'; ?>
     <br>
     <br>
     <?php if ($generateSucess): ?>
@@ -119,7 +119,7 @@ if (isset($_POST['generate'])) {
             <div class="text-center">
                 <button type="submit" name="generate" class="btn btn-primary btn-custom">Generate PDF</button>
             </div>
-           
+            
         </form>
     </div>
     <br>

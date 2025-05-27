@@ -1,9 +1,10 @@
 <?php
 session_start();
-
+if (!isset($_SESSION['email'])) {
+    header('Location: logIn.php');
+    exit();
+}
 include 'connect.php'; // Include your database connection file
-
-
 // Set the number of records per page
 $records_per_page = 5;
 
@@ -40,7 +41,7 @@ $total_pages = ceil($total_records / $records_per_page);
 </head>
 
 <body style="background-image: url('sdh_bg_2.png'); background-size: cover;">
-    <?php include 'components/navbar.php'; ?>
+    <?php //include 'components/navbar.php'; ?>
     <br><br><br><br>
     
     <div class="container my-5 p-5" style="background-color: rgb(231, 231, 231); border: 1px solid rgb(114, 234, 126); border-radius: 10px; opacity: 0.8;">

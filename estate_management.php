@@ -1,6 +1,10 @@
 <?php
 // Start the session at the beginning of your script
 session_start();
+if (!isset($_SESSION['email'])) {
+    header('Location: logIn.php');
+    exit();
+}
 
 // Include the database connection
 include 'connect.php';

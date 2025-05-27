@@ -22,17 +22,22 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             $_SESSION['email'] = $email;
             $_SESSION['name'] = $user['name'];
             $_SESSION['role'] = $user['role'];
-            $_SESSION['handle_csv_privillages']= $user['handle_csv_privillages'];
-            $_SESSION['gen_qr_privillages']= $user['gen_qr_privillages'];
-            $_SESSION['qr_details_privillages']= $user['qr_details_privillages'];
-            $_SESSION['estate_privillages']= $user['estate_privillages'];            
-            // Redirect based on user role
-            if ($user['role'] === 'admin') {
-                header("Location: index.php");
-            } else {
-                header("Location: generate_pdf.php");
+            $_SESSION['handle_csv_privillages'] = $user['handle_csv_privillages'];
+            $_SESSION['gen_qr_privillages'] = $user['gen_qr_privillages'];
+            $_SESSION['qr_details_privillages'] = $user['qr_details_privillages'];
+            $_SESSION['estate_privillages'] = $user['estate_privillages'];
+
+            if ($user['handle_csv_privillages'] && $user['gen_qr_privillages'] && $user['qr_details_privillages'] && $user['estate_privillages'] == 0) {
+                header("Location: logIn.php");
+                exit();
+            }elseif ($user['role'] === 'admin') {
+                header("Location: dashboard.php");
+                exit();
             }
-            exit();
+            elseif (($user['handle_csv_privillages'] || $user['gen_qr_privillages'] || $user['qr_details_privillages'] || $user['estate_privillages']) > 0) {
+                header("Location: dashboard.php");
+                exit();
+            }
         } else {
             // Invalid password
             $error = "Invalid password!";
@@ -90,9 +95,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                                 <button type="submit" class="btn btn-success btn-block btn-animate">Log In</button>
                             </div>
                             <hr class="my-4" style="border-top: 1.5px solid #e0e0e0;">
-                            <div class="text-center">
-                                <h6>All Rights Reserved @Sadaharitha Plantations Limited IT Department.</h6>
-                            </div>
                         </form>
                     </div>
                 </div>
