@@ -45,6 +45,7 @@ if (isset($_POST['generate'])) {
         echo '<div class="alert alert-danger">Error: ' . htmlspecialchars($e->getMessage()) . '</div>';
     }
 }
+
 ?>
 
 <!DOCTYPE html>
@@ -60,9 +61,7 @@ if (isset($_POST['generate'])) {
 </head>
 
 <body>
-    <?php //include 'components/navbar.php'; ?>
-    <br>
-    <br>
+    <?php include 'components/navbar.php'; ?>
     <?php if ($generateSucess): ?>
         <div class="alert alert-success alert-dismissible fade show" role="alert">
             ✅ PDF generated and processed successfully!
@@ -70,7 +69,7 @@ if (isset($_POST['generate'])) {
         </div>
     <?php endif; ?>
     <!-- Start of the new form -->
-    <div class="card p-4 mx-auto " style="max-width: 700px;">
+    <div class="card p-4 mx-auto " style="max-width: 700px; margin-top: 100px;">
         <form method="post" enctype="multipart/form-data" id="myForm">
             <hr>
             <h4 class="mb-3">2️⃣ PDF Dimensions</h4>
@@ -119,7 +118,7 @@ if (isset($_POST['generate'])) {
             <div class="text-center">
                 <button type="submit" name="generate" class="btn btn-primary btn-custom">Generate PDF</button>
             </div>
-            
+
         </form>
     </div>
     <br>

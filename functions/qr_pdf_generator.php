@@ -2,8 +2,6 @@
 require_once('fpdf186/fpdf.php');
 require_once('phpqrcode/qrlib.php');
 
-session_start();
-
 function generateQRPDF($mysqli, $tableName, $params)
 {
     // Validate and extract parameters
@@ -42,7 +40,6 @@ function generateQRPDF($mysqli, $tableName, $params)
         }
         return $colorMap;
     }
-
     // Get selected color with fallback
     $colorMap = getColorMap($mysqli);
     $selectedColor = isset($_POST['cellColorSelect'])
@@ -50,6 +47,7 @@ function generateQRPDF($mysqli, $tableName, $params)
         : 'white';
 
     $cellColor = $colorMap[$selectedColor] ?? [255, 255, 255]; // Fallback to white
+    $cellColorStr = implode(',', $cellColor); // Convert to string like "255,255,255"
 
     // Create QR code directory if not exists
     if (!file_exists('qrcodes')) {
@@ -66,6 +64,22 @@ function generateQRPDF($mysqli, $tableName, $params)
         $plantNumber = isset($row['Plant Number']) ? $row['Plant Number'] : 'N/A';
         $filename = "qrcodes/{$row['id']}.png";
         QRcode::png($qrContent, $filename, QR_ECLEVEL_L, 10);
+
+        // Insert into qr_pdf table
+        $currentDateTime = date('Y-m-d H:i:s');
+        $generatedBy = $_SESSION['email']; // Current date and time
+        $sql_insert = "INSERT INTO qr_details (qr_content, plant_number, cell_color, created_at, generated_by) VALUES (?, ?, ?, ?, ?)";
+        $stmt = mysqli_prepare($mysqli, $sql_insert);
+        if ($stmt) {
+            mysqli_stmt_bind_param($stmt, "sssss", $qrContent, $plantNumber, $cellColorStr, $currentDateTime, $generatedBy);
+            if (!mysqli_stmt_execute($stmt)) {
+                echo "Error inserting QR PDF record: " . mysqli_error($mysqli);
+            }
+            mysqli_stmt_close($stmt);
+        } else {
+            echo "Prepare failed: " . mysqli_error($mysqli);
+        }
+
         $items[] = [
             'file' => $filename,
             'text' => $qrContent,

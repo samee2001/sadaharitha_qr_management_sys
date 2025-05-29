@@ -76,7 +76,7 @@ if (isset($_POST['upload'])) {
 </head>
 
 <body>
-    <?php //include 'components/navbar.php'; ?>
+    <?php include 'components/navbar.php'; ?>
     <div class="container my-5">
         <div class="text-center mb-4">
             <br>
