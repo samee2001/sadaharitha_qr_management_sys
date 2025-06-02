@@ -51,11 +51,11 @@ $total_pages = ceil($total_records / $records_per_page);
             <thead>
                 <tr>
                     <th scope="col">ID</th>
-                    <th scope="col">Name</th>
+                    <!--<th scope="col">Name</th>-->
                     <th scope="col">Email</th>
-                    <th scope="col">Range</th>
-                    <th scope="col">Date</th>
-                    <th scope="col">Time</th>
+                    <th scope="col">Start</th>
+                    <th scope="col">Step</th>
+                    <!--<th scope="col">Time</th>-->
                     <th scope="col">Issued Estate</th>
                     <th scope="col">Action</th>
                 </tr>
@@ -67,11 +67,11 @@ $total_pages = ceil($total_records / $records_per_page);
                     while ($row = $result->fetch_assoc()) {
                         echo "<tr>";
                         echo "<td>" . htmlspecialchars($row['id']) . "</td>";
-                        echo "<td>" . htmlspecialchars($row['updater_name']) . "</td>";
-                        echo "<td>" . htmlspecialchars($row['email']) . "</td>";
-                        echo "<td>" . htmlspecialchars($row['field']) . "</td>";
-                        echo "<td>" . htmlspecialchars($row['date']) . "</td>";
-                        echo "<td>" . htmlspecialchars($row['time']) . "</td>";
+                        //echo "<td>" . htmlspecialchars($row['updater_name']) . "</td>";
+                        echo "<td>" . htmlspecialchars($_SESSION['email']) . "</td>";
+                        echo "<td>" . htmlspecialchars($row['start']) . "</td>";
+                        echo "<td>" . htmlspecialchars($row['step']) . "</td>";
+                        //echo "<td>" . htmlspecialchars($row['created_at']) . "</td>";
                         echo "<td>" . htmlspecialchars($row['estate']) . "</td>";
                         echo "<td><button type='button' class='btn btn-primary'><a href='update_page.php?updateid=" . $row["id"] . "' class='text-light text-decoration-none'>Update</a></button></td>";
                         echo "</tr>";

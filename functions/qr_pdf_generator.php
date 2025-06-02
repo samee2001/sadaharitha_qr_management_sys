@@ -68,10 +68,11 @@ function generateQRPDF($mysqli, $tableName, $params)
         // Insert into qr_pdf table
         $currentDateTime = date('Y-m-d H:i:s');
         $generatedBy = $_SESSION['email']; // Current date and time
-        $sql_insert = "INSERT INTO qr_details (qr_content, plant_number, cell_color, created_at, generated_by) VALUES (?, ?, ?, ?, ?)";
+        $estateName = isset($_POST['qrManagementId']) ? mysqli_real_escape_string($mysqli, $_POST['qrManagementId']) : 'No Mentioned';
+        $sql_insert = "INSERT INTO qr_details (qr_content, plant_number, cell_color, created_at, generated_by, estate_id ) VALUES (?, ?, ?, ?, ?, ?)";
         $stmt = mysqli_prepare($mysqli, $sql_insert);
         if ($stmt) {
-            mysqli_stmt_bind_param($stmt, "sssss", $qrContent, $plantNumber, $cellColorStr, $currentDateTime, $generatedBy);
+            mysqli_stmt_bind_param($stmt, "ssssss", $qrContent, $plantNumber, $cellColorStr, $currentDateTime, $generatedBy, $estateName);
             if (!mysqli_stmt_execute($stmt)) {
                 echo "Error inserting QR PDF record: " . mysqli_error($mysqli);
             }

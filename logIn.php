@@ -70,7 +70,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                     <div class="card-header text-center">
                         <img src="sadaharitha_logo_black.png" alt="Logo" class="forest-logo">
                         <h3>Sadaharitha Plantations Limited</h3>
-                        <h5 class="mb-0">Admin Panel QR System</h5>
+                        <h5 class="mb-0">Admin Panel QR Management System</h5>
                         <h4 class="mb-0 mt-2">Log In</h4>
                     </div>
                     <div class="card-body">
