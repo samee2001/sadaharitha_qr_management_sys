@@ -30,6 +30,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
             if ($user['handle_csv_privillages'] && $user['gen_qr_privillages'] && $user['qr_details_privillages'] && $user['estate_privillages'] == 0) {
                 header("Location: logIn.php");
+                session_destroy();
                 exit();
             }
             elseif (($user['handle_csv_privillages'] || $user['gen_qr_privillages'] || $user['qr_details_privillages'] || $user['estate_privillages']) > 0) {

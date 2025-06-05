@@ -1,5 +1,8 @@
 <?php
 session_start();
+if (!isset($_SESSION['email'])) {
+    header('location:login.php');
+}
 
 // Include the database connection file
 include 'connect.php';

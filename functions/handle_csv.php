@@ -1,7 +1,7 @@
 <?php
 // handle_csv.php
 
-function processCSVUpload($mysqli, $csvFile, $tableName )
+function processCSVUpload($mysqli, $csvFile, $tableName)
 {
     $result = ['success' => false, 'error' => ''];
 
@@ -14,16 +14,6 @@ function processCSVUpload($mysqli, $csvFile, $tableName )
         if (!isset($csvFile['error']) || $csvFile['error'] !== UPLOAD_ERR_OK) {
             throw new Exception("File upload error");
         }
-
-        /*if (empty($tableName) || !preg_match('/^[a-zA-Z0-9_]+$/', $tableName)) {
-            throw new Exception("Invalid table name");
-        }
-
-        $checkTable = $mysqli->query("SHOW TABLES LIKE '$tableName'");
-        if ($checkTable && $checkTable->num_rows > 0) {
-
-            throw new Exception("A table with the name '$tableName' already exists. Please use a unique table name.");
-        }*/
 
         // Process CSV
         $handle = fopen($csvFile['tmp_name'], 'r');
@@ -85,6 +75,11 @@ function processCSVUpload($mysqli, $csvFile, $tableName )
                 continue; // Skip empty rows
             }
 
+            // Transform Plant Number (first column) to extract only the integer
+            if (isset($data[0]) && strpos($data[0], 'Plant No. ') === 0) {
+                $data[0] = (int)str_replace('Plant No. ', '', $data[0]);
+            }
+
             $stmt->bind_param(str_repeat('s', count($data)), ...$data);
             if (!$stmt->execute()) {
                 throw new Exception("Insert failed: " . $stmt->error);
@@ -98,7 +93,6 @@ function processCSVUpload($mysqli, $csvFile, $tableName )
 
         $result['success'] = true;
         $result['message'] = "Successfully processed $rowCount rows";
-
     } catch (Exception $e) {
         $result['error'] = $e->getMessage();
     } finally {
@@ -112,21 +106,3 @@ function processCSVUpload($mysqli, $csvFile, $tableName )
 
     return $result;
 }
-
-// Usage in your index.php:
-// include 'handle_csv.php';
-// 
-// if (isset($_POST['upload'])) {
-//     $uploadResult = processCSVUpload(
-//         $mysqli,
-//         $_FILES['csvfile'],
-//         $_POST['tableName']
-//     );
-//     
-//     if ($uploadResult['success']) {
-//         // Show success message
-//     } else {
-//         // Show error message
-//     }
-// }
-?>

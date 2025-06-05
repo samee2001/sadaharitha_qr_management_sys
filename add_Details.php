@@ -9,18 +9,18 @@ if (isset($_POST['submit'])) {
     $start = $_POST['rangeStart'];
     $step = $_POST['rangeStep'];
     $estate = $_POST['estate'];
-    $background_color = $_POST['cellColorSelect'];
+    //$background_color = $_POST['cellColorSelect'];
 
 
     // Prepare the SQL statement to prevent SQL injection
-    $sql = "INSERT INTO qr_management (email, start, step, estate, background_color) 
-            VALUES (?, ?, ?, ?, ?)";
+    $sql = "INSERT INTO qr_management (email, start, step, estate) 
+            VALUES (?, ?, ?, ?)";
 
     // Use a prepared statement
     $stmt = $conn->prepare($sql);
     if ($stmt) {
         // Bind the parameters (all integers for start and step, strings for others)
-        $stmt->bind_param("siiss", $email, $start, $step, $estate, $background_color);
+        $stmt->bind_param("siis", $email, $start, $step, $estate);
 
         // Execute the statement
         if ($stmt->execute()) {
@@ -91,6 +91,7 @@ if (isset($_POST['submit'])) {
                     </div>
                     <div class="form-text">Specify the starting row and how many QR codes to generate (step, max 5000)</div>
                     <br>
+                    <!--
                     <div class="form-group mb-4">
                         <label for="cellColorSelect" class="form-label">Background Color</label>
                         <div class="input-group">
@@ -99,7 +100,7 @@ if (isset($_POST['submit'])) {
                             </div>
                             <select name="cellColorSelect" id="cellColorSelect" class="form-select" required>
                                 <option value="">Select a Color</option>
-                                <?php
+                                <?php /*
                                 $sql = "SELECT color_name, color_code FROM colors";
                                 $result = $conn->query($sql);
                                 if ($result && $result->num_rows > 0) {
@@ -114,11 +115,11 @@ if (isset($_POST['submit'])) {
                                     $result->free();
                                 } else {
                                     echo "<option value=''>No colors available</option>";
-                                }
+                                }*/
                                 ?>
                             </select>
                         </div>
-                    </div>
+                    </div>-->
                     <!-- Estate Dropdown with Icon -->
                     <div class="form-group mb-4">
                         <label for="estate" class="form-label">Estate QR Belongs to</label>
@@ -146,7 +147,7 @@ if (isset($_POST['submit'])) {
                     <div class="btn" style="width: 100%; background-color: green;">
                         <button type="submit" name="submit"
                             style="background-color: green; border: none; width: 100%; color: white; font-size: 17px;"
-                            class="btn">Add Details</button>
+                            class="btn">Add Batch</button>
                     </div>
                 </form>
             </div>

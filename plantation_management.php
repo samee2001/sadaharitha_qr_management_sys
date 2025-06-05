@@ -44,7 +44,7 @@ $total_pages = ceil($total_records / $records_per_page);
     <?php include 'components/navbar.php'; ?>
     <br><br><br><br>
     
-    <div class="container my-5 p-5" style="background-color: rgb(231, 231, 231); border: 1px solid rgb(114, 234, 126); border-radius: 10px; opacity: 0.8;">
+    <div class="container my-5 p-5 " style="background-color: rgb(231, 231, 231); border: 1px solid rgb(114, 234, 126); border-radius: 10px; opacity: 0.8; max-height: 550px;">
         <button type="button" class="btn btn-success"><a href="add_details.php"
                 class="text-light text-decoration-none">Add QR Details</a></button>
         <table class="table my-5" >

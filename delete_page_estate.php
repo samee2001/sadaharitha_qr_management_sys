@@ -2,6 +2,10 @@
 session_start();
 include 'connect.php';
 
+if (!isset($_SESSION['email'])) {
+    header('location:login.php');
+}
+
 // Validate ID parameter
 if (!isset($_GET['deleteid']) || !is_numeric($_GET['deleteid'])) {
     $_SESSION['statusdelete'] = 'Invalid request!';
