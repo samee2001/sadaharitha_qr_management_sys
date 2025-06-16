@@ -36,7 +36,9 @@ function processCSVUpload($mysqli, $csvFile, $tableName)
             if (empty($cleanHeader)) {
                 throw new Exception("Invalid column name in CSV header");
             }
-            $createTableQuery .= "`$cleanHeader` TEXT, ";
+            // Use INT for Plant Number (first column), TEXT for others
+            $type = ($index === 0) ? 'INT' : 'TEXT';
+            $createTableQuery .= "`$cleanHeader` $type, ";
         }
 
         $createTableQuery .= "UNIQUE (`" . trim($headers[0]) . "`))";
@@ -45,33 +47,42 @@ function processCSVUpload($mysqli, $csvFile, $tableName)
             throw new Exception("Table creation failed: " . $mysqli->error);
         }
 
+        // Ensure index on Plant Number (first column)
+        $indexQuery = "CREATE INDEX IF NOT EXISTS idx_plant_number ON `$tableName` (`" . trim($headers[0]) . "`)";
+        if (!$mysqli->query($indexQuery)) {
+            throw new Exception("Index creation failed: " . $mysqli->error);
+        }
+
+        // Start transaction
+        $mysqli->begin_transaction();
+
         // Prepare insert statement
         $columns = implode(", ", array_map(function ($col) {
             return "`" . trim($col) . "`";
         }, $headers));
 
         $placeholders = str_repeat('?, ', count($headers) - 1) . '?';
-        $updateClause = implode(', ', array_map(function ($col) {
-            return "`" . trim($col) . "` = VALUES(`" . trim($col) . "`)";
-        }, $headers));
-
-        $stmt = $mysqli->prepare("INSERT INTO `$tableName` ($columns) 
-                                VALUES ($placeholders)
-                                ON DUPLICATE KEY UPDATE $updateClause");
-
+        $stmt = $mysqli->prepare("INSERT IGNORE INTO `$tableName` ($columns) VALUES ($placeholders)");
         if (!$stmt) {
             throw new Exception("Prepare failed: " . $mysqli->error);
         }
 
-        // Process rows
+        // Batch processing: Collect Plant Numbers to check duplicates
+        $plantNumbers = [];
+        $rows = [];
+        $batchSize = 1000; // Process in batches of 1000 rows
         $rowCount = 0;
+        $skippedCount = 0;
+
         while (($data = fgetcsv($handle)) !== false) {
             if (count($data) !== count($headers)) {
+                $skippedCount++;
                 continue; // Skip invalid rows
             }
 
             $data = array_map('trim', $data);
             if (empty(array_filter($data))) {
+                $skippedCount++;
                 continue; // Skip empty rows
             }
 
@@ -80,20 +91,101 @@ function processCSVUpload($mysqli, $csvFile, $tableName)
                 $data[0] = (int)str_replace('Plant No. ', '', $data[0]);
             }
 
-            $stmt->bind_param(str_repeat('s', count($data)), ...$data);
-            if (!$stmt->execute()) {
-                throw new Exception("Insert failed: " . $stmt->error);
+            $plantNumber = $data[0]; // First column is Plant Number
+            $plantNumbers[] = $plantNumber;
+            $rows[] = $data;
+
+            // Process batch when it reaches the batch size
+            if (count($rows) >= $batchSize) {
+                // Check duplicates in batch
+                $placeholders = str_repeat('?,', count($plantNumbers) - 1) . '?';
+                $checkStmt = $mysqli->prepare("SELECT `" . trim($headers[0]) . "` FROM `$tableName` WHERE `" . trim($headers[0]) . "` IN ($placeholders)");
+                if (!$checkStmt) {
+                    throw new Exception("Prepare for duplicate check failed: " . $mysqli->error);
+                }
+
+                $types = str_repeat('i', count($plantNumbers));
+                $checkStmt->bind_param($types, ...$plantNumbers);
+                $checkStmt->execute();
+                $checkResult = $checkStmt->get_result();
+
+                $existingPlantNumbers = [];
+                while ($row = $checkResult->fetch_assoc()) {
+                    $existingPlantNumbers[] = $row[trim($headers[0])];
+                }
+                $checkStmt->close();
+
+                // Process each row in the batch
+                foreach ($rows as $data) {
+                    $plantNumber = $data[0];
+                    if (in_array($plantNumber, $existingPlantNumbers)) {
+                        $skippedCount++;
+                        continue; // Skip duplicate
+                    }
+
+                    // Bind parameters with proper types (INT for Plant Number, strings for others)
+                    $types = 'i' . str_repeat('s', count($data) - 1);
+                    $stmt->bind_param($types, ...$data);
+                    if (!$stmt->execute()) {
+                        throw new Exception("Insert failed: " . $stmt->error);
+                    }
+                    $rowCount++;
+                }
+
+                // Clear batch
+                $plantNumbers = [];
+                $rows = [];
             }
-            $rowCount++;
         }
 
-        if ($rowCount === 0) {
+        // Process remaining rows (last batch)
+        if (!empty($rows)) {
+            // Check duplicates in batch
+            $placeholders = str_repeat('?,', count($plantNumbers) - 1) . '?';
+            $checkStmt = $mysqli->prepare("SELECT `" . trim($headers[0]) . "` FROM `$tableName` WHERE `" . trim($headers[0]) . "` IN ($placeholders)");
+            if (!$checkStmt) {
+                throw new Exception("Prepare for duplicate check failed: " . $mysqli->error);
+            }
+
+            $types = str_repeat('i', count($plantNumbers));
+            $checkStmt->bind_param($types, ...$plantNumbers);
+            $checkStmt->execute();
+            $checkResult = $checkStmt->get_result();
+
+            $existingPlantNumbers = [];
+            while ($row = $checkResult->fetch_assoc()) {
+                $existingPlantNumbers[] = $row[trim($headers[0])];
+            }
+            $checkStmt->close();
+
+            // Process each row in the batch
+            foreach ($rows as $data) {
+                $plantNumber = $data[0];
+                if (in_array($plantNumber, $existingPlantNumbers)) {
+                    $skippedCount++;
+                    continue; // Skip duplicate
+                }
+
+                $types = 'i' . str_repeat('s', count($data) - 1);
+                $stmt->bind_param($types, ...$data);
+                if (!$stmt->execute()) {
+                    throw new Exception("Insert failed: " . $stmt->error);
+                }
+                $rowCount++;
+            }
+        }
+
+        if ($rowCount === 0 && $skippedCount === 0) {
             throw new Exception("No valid data rows found in CSV");
         }
 
+        // Commit transaction
+        $mysqli->commit();
+
         $result['success'] = true;
-        $result['message'] = "Successfully processed $rowCount rows";
+        $result['message'] = "Successfully processed $rowCount rows. Skipped $skippedCount rows (due to invalid data or duplicates).";
     } catch (Exception $e) {
+        $mysqli->rollback();
         $result['error'] = $e->getMessage();
     } finally {
         if (isset($handle) && is_resource($handle)) {
@@ -102,6 +194,7 @@ function processCSVUpload($mysqli, $csvFile, $tableName)
         if (isset($stmt) && $stmt instanceof mysqli_stmt) {
             $stmt->close();
         }
+        
     }
 
     return $result;

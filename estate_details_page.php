@@ -6,9 +6,8 @@ if (!isset($_SESSION['email'])) {
 }
 include 'connect.php'; // Include your database connection file
 
-
 // Set the number of records per page
-$records_per_page = 5;
+$records_per_page = 8;
 
 // Get the current page number from the URL, default to 1 if not set
 $page = isset($_GET['page']) ? (int) $_GET['page'] : 1;
@@ -40,7 +39,6 @@ $total_pages = ceil($total_records / $records_per_page);
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
-
 </head>
 
 <body style="background-image: url('sdh_bg_2.png'); background-size: cover;">
@@ -48,23 +46,21 @@ $total_pages = ceil($total_records / $records_per_page);
     <br><br><br><br>
     <?php
     if (isset($_SESSION['statusupdate'])) {
-        ?>
+    ?>
         <div class="alert alert-success alert-dismissible fade show" role="alert">
-            <strong>Success!</strong> <?php echo $_SESSION['statusupdate']; ?>
+            <strong>Success!</strong> <?php echo htmlspecialchars($_SESSION['statusupdate']); ?>
             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
-        <?php
-        echo $_SESSION['statusupdate'];
+    <?php
         unset($_SESSION['statusupdate']);
     }
     if (isset($_SESSION['statusdelete'])) {
-        ?>
+    ?>
         <div class="alert alert-danger alert-dismissible fade show" role="alert">
-            <strong>Success!</strong> <?php echo $_SESSION['statusdelete']; ?>
+            <strong>Success!</strong> <?php echo htmlspecialchars($_SESSION['statusdelete']); ?>
             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
-        <?php
-        echo $_SESSION['statusdelete'];
+    <?php
         unset($_SESSION['statusdelete']);
     }
     ?>
@@ -72,6 +68,8 @@ $total_pages = ceil($total_records / $records_per_page);
         style="background-color: rgb(231, 231, 231); border: 1px solid rgb(114, 234, 126); border-radius: 10px; opacity: 0.8;">
         <button type="button" class="btn btn-success"><a href="estate_management.php"
                 class="text-light text-decoration-none">Add Estate</a></button>
+        <button type="button" class="btn btn-success "><a href="estate_issued.php"
+                class="text-light text-decoration-none">Issue QR Batch</a></button>
         <table class="table my-4">
             <thead>
                 <tr>
@@ -93,7 +91,7 @@ $total_pages = ceil($total_records / $records_per_page);
                         echo "<td>" . htmlspecialchars($row['plant_type']) . "</td>";
                         echo "<td>" . htmlspecialchars($row['land_called']) . "</td>";
                         echo "<td class='text-center'>";
-                        echo "<a href='update_page_estate.php?updateid=" . $row["id"] . "' class='btn btn-primary btn-sm me-2 text-light text-decoration-none'>Update</a>";
+                        echo "<a href='update_page_estate.php?updateid=" . $row["id"] . "' class='btn btn-primary btn-sm me-2 text-light text-decoration-none px-3'>Edit</a>";
                         echo "<a href='delete_page_estate.php?deleteid=" . $row["id"] . "' class='btn btn-danger btn-sm text-light text-decoration-none' onclick='return confirm(\"Are you sure you want to delete this record?\");'>Delete</a>";
                         echo "</td>";
                         echo "</tr>";
@@ -125,6 +123,8 @@ $total_pages = ceil($total_records / $records_per_page);
         </nav>
     </div>
     <?php include 'components/footer.php'; ?>
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 
 </html>

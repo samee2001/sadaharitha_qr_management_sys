@@ -3,13 +3,24 @@ require_once('fpdf186/fpdf.php');
 require_once('phpqrcode/qrlib.php');
 
 function generateQRPDF($mysqli, $params)
-{
-    // Validate and extract parameters
-
+{ // Validate and extract parameters
     $start = isset($params['start']) ? (int) $params['start'] : 1;
     $step = isset($params['step']) ? (int) $params['step'] : 1;
     $width = isset($params['width']) ? (int) $params['width'] : 305;
     $height = isset($params['height']) ? (int) $params['height'] : 336;
+    $selectedColor = isset($params['cellColorSelect']) ? trim(str_replace(' ', '', $params['cellColorSelect'])) : '255,255,255';
+    $rgb = explode(',', $selectedColor);
+    if (count($rgb) === 3) {
+        $cellColor = array_map('intval', $rgb);
+        foreach ($cellColor as $c) {
+            if ($c < 0 || $c > 255) {
+                $cellColor = [255,255,255];
+                break;
+            }
+        }
+    } else {
+        $cellColor = [255,255,255];
+    }
 
     // Fetch color mapping from database
     function getColorMap($mysqli)
@@ -41,45 +52,42 @@ function generateQRPDF($mysqli, $params)
         }
         return $colorMap;
     }
-    // Get selected color with fallback
-    $colorMap = getColorMap($mysqli);
-    $selectedColor = isset($_POST['cellColorSelect'])
-        ? strtolower(trim($_POST['cellColorSelect']))
-        : 'white';
 
-    $cellColor = $colorMap[$selectedColor] ?? [255, 255, 255]; // Fallback to white
+    // Get selected color with fallback
+    //$colorMap = getColorMap($mysqli);
+    //$selectedColor = isset($_POST['cellColorSelect']) ? strtolower(trim($_POST['cellColorSelect'])) : 'white';
+
+    //$cellColor = $colorMap[$selectedColor] ; // Fallback to white
     $cellColorStr = implode(',', $cellColor); // Convert to string like "255,255,255"
 
     // Create QR code directory if not exists
     if (!file_exists('qrcodes')) {
         mkdir('qrcodes', 0777, true);
     }
-
     // Fetch data
-    $startPlantNumber = $start ; // Starting Plant_Number (integer)
+    $startPlantNumber = $start; // Starting Plant_Number (integer)
     $limit = $step;
-    $tableName = 'plant_data';
+    $tableName = 'data_plant';
 
-    $stmt = $mysqli->prepare("SELECT Plant_Number, QR_Code_Details FROM `$tableName` WHERE Plant_Number >= ? ORDER BY Plant_Number LIMIT ?");
+    $stmt = $mysqli->prepare("SELECT plant_number, qr_code_details FROM `$tableName` WHERE plant_number >= ? ORDER BY plant_number LIMIT ?");
     $stmt->bind_param("ii", $startPlantNumber, $limit); // 'i' for both
     $stmt->execute();
     $result = $stmt->get_result();
     $items = [];
 
     while ($row = $result->fetch_assoc()) {
-        $qrContent = isset($row['QR_Code_Details']) ? 'SPL ' . $row['QR_Code_Details'] : 'N/A';
-        $plantNumber = 'Plant No. ' . (isset($row['Plant_Number']) ? $row['Plant_Number'] : 'N/A');
-        $filename = "qrcodes/{$row['Plant_Number']}.png";
+        $qrContent = isset($row['qr_code_details']) ? 'SPL ' . $row['qr_code_details'] : 'N/A';
+        $plantNumber = 'Plant No. ' . (isset($row['plant_number']) ? $row['plant_number'] : 'N/A');
+        $filename = "qrcodes/{$row['plant_number']}.png";
         QRcode::png($qrContent, $filename, QR_ECLEVEL_L, 10);
 
         $currentDateTime = date('Y-m-d H:i:s');
         $generatedBy = $_SESSION['email'];
-        $estateName = isset($_POST['qrManagementId']) ? $_POST['qrManagementId'] : 'No Mentioned';
-        $sql_insert = "INSERT INTO qr_details (qr_content, plant_number, cell_color, created_at, generated_by, estate_id) VALUES (?, ?, ?, ?, ?, ?)";
+        $batchId = isset($_POST['qrManagementId']) ? $_POST['qrManagementId'] : 'No Mentioned';
+        $sql_insert = "INSERT INTO qr_details (qr_content, plant_number, created_at, generated_by, batch_id) VALUES ( ?, ?, ?, ?, ?)";
         $stmt_insert = $mysqli->prepare($sql_insert);
         if ($stmt_insert) {
-            $cellColorStr = "default_color"; // Define or replace with actual value
-            mysqli_stmt_bind_param($stmt_insert, "ssssss", $qrContent, $plantNumber, $cellColorStr, $currentDateTime, $generatedBy, $estateName);
+            mysqli_stmt_bind_param($stmt_insert, "sssss", $qrContent, $plantNumber,  $currentDateTime, $generatedBy, $batchId);
             if (!mysqli_stmt_execute($stmt_insert)) {
                 echo "Error inserting QR PDF record: " . $mysqli->error;
             }

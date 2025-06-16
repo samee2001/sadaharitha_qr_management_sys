@@ -48,13 +48,13 @@ if (session_status() === PHP_SESSION_NONE) {
                 <?php if ($_SESSION['qr_details_privillages'] < 10): ?>
                     <li class="nav-item">
                         <a class="nav-link disabled" <?php echo $_SESSION['qr_details_privillages'] < 10 ? 'aria-disabled="true"' : 'href="#" target="_parent" rel="noopener"'; ?>>
-                            QR Details
+                            Batch Details
                         </a>
                     </li>
                 <?php endif; ?>
                 <?php if ($_SESSION['qr_details_privillages'] >= 10): ?>
                     <li class="nav-item">
-                        <a class="nav-link" href="plantation_management.php" target="_parent" rel="noopener">QR Details</a>
+                        <a class="nav-link" href="plantation_management.php" target="_parent" rel="noopener">Batch Details</a>
                     </li>
                 <?php endif; ?>
 
@@ -71,9 +71,7 @@ if (session_status() === PHP_SESSION_NONE) {
                     </li>
                 <?php endif; ?>
 
-                <li class="nav-item">
-                    <a class="nav-link" href="about.php" target="_parent" rel="noopener">About</a>
-                </li>
+                
             </ul>
             <!--profile-->
             <div class="ms-auto ms-1 me-3" id="profileTrigger">

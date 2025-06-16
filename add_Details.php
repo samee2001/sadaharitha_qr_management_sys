@@ -1,161 +1,336 @@
 <?php
-// Include the database connection file
 session_start();
-include 'connect.php'; // Ensure the database connection is included
+if (!isset($_SESSION['email'])) {
+    header('Location: logIn.php');
+    exit();
+}
+
+include 'connect.php'; // Database connection
+
+// Enable error reporting for debugging
+ini_set('display_errors', 1);
+error_reporting(E_ALL);
 
 $email = $_SESSION['email'];
-if (isset($_POST['submit'])) {
-    // Get the data from the form
-    $start = $_POST['rangeStart'];
-    $step = $_POST['rangeStep'];
-    $estate = $_POST['estate'];
-    //$background_color = $_POST['cellColorSelect'];
+$error = '';
+$success = '';
 
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit'])) {
+    // Get form data
+    $start = (int)($_POST['rangeStart'] ?? 0);
+    $step = (int)($_POST['rangeStep'] ?? 0);
+    $background_color = isset($_POST['cellColorSelect']) ? trim($_POST['cellColorSelect']) : '';
+    $year = trim($_POST['year'] ?? '');
+    $botanical_name = trim($_POST['bot'] ?? '');
+    $email = $_SESSION['email'];
 
-    // Prepare the SQL statement to prevent SQL injection
-    $sql = "INSERT INTO qr_management (email, start, step, estate) 
-            VALUES (?, ?, ?, ?)";
+    // Validate inputs
+    if (empty($year)) {
+        $error = "Year is required.";
+    } elseif (empty($botanical_name)) {
+        $error = "Botanical name is required.";
+    } elseif ($start < 1) {
+        $error = "Start must be a positive number.";
+    } elseif ($step < 1 || $step > 5000) {
+        $error = "Step must be between 1 and 5000.";
+    } elseif (!preg_match('/^\d{1,3},\d{1,3},\d{1,3}$/', $background_color)) {
+        $error = "Invalid RGB color format.";
+    } else {
+        // Validate color exists in colors table
+        $color_check = $conn->prepare("SELECT color_code FROM colors WHERE color_code = ?");
+        $color_check->bind_param("s", $background_color);
+        $color_check->execute();
+        $result = $color_check->get_result();
+        if ($result->num_rows === 0) {
+            $error = "Error: Selected color is invalid.";
+        }
+        $color_check->close();
+    }
 
-    // Use a prepared statement
-    $stmt = $conn->prepare($sql);
-    if ($stmt) {
-        // Bind the parameters (all integers for start and step, strings for others)
-        $stmt->bind_param("siis", $email, $start, $step, $estate);
+    // Check for range overlap
+    if (!$error) {
+        $end = $start + $step - 1;
+        $stmt = $conn->prepare("SELECT plant_number FROM data_plant WHERE plant_number BETWEEN ? AND ?");
+        if (!$stmt) {
+            $error = "Range check failed: " . $conn->error;
+        } else {
+            $stmt->bind_param("ii", $start, $end);
+            $stmt->execute();
+            if ($stmt->get_result()->num_rows > 0) {
+                $error = "Range $start to $end overlaps with existing records.";
+            }
+            $stmt->close();
+        }
+    }
 
-        // Execute the statement
-        if ($stmt->execute()) {
-            // Redirect to plantation_management.php after successful insertion
+    // Insert records
+    if (!$error) {
+        $conn->begin_transaction();
+        $batch_stmt = null;
+        $stmt = null;
+        try {
+            // Insert batch details into qr_batch_details
+            $batch_stmt = $conn->prepare("INSERT INTO qr_batch_details (start, step, email, background_color) VALUES (?, ?, ?, ?)");
+            if (!$batch_stmt) {
+                throw new Exception("Batch prepare failed: " . $conn->error);
+            }
+            $batch_stmt->bind_param("iiss", $start, $step, $email, $background_color);
+            if (!$batch_stmt->execute()) {
+                throw new Exception("Batch insert failed: " . $batch_stmt->error);
+            }
+
+            // Retrieve the last inserted batch_id
+            $batch_id = $conn->insert_id;
+
+            // Insert records into data_plant
+            $stmt = $conn->prepare("INSERT INTO data_plant (plant_number, year, email, botanical_name, background_color, qr_code_details, batch_id) VALUES (?, ?, ?, ?, ?, ?, ?)");
+            if (!$stmt) {
+                throw new Exception("Prepare failed: " . $conn->error);
+            }
+
+            for ($i = 0; $i < $step; $i++) {
+                $plant_number = $start + $i;
+                $qr_code_details = "$year $botanical_name Plant No. $plant_number";
+                $stmt->bind_param("iissssi", $plant_number, $year, $email, $botanical_name, $background_color, $qr_code_details, $batch_id);
+                if (!$stmt->execute()) {
+                    if ($conn->errno === 1062) {
+                        throw new Exception("Duplicate plant number detected: $plant_number");
+                    }
+                    throw new Exception("Insert failed for plant $plant_number: " . $stmt->error);
+                }
+            }
+
+            $conn->commit();
+            $success = "Batch added successfully!";
             header("Location: generate_pdf.php");
             exit();
-        } else {
-            // Error message if insertion fails
-            echo "Error: " . $stmt->error;
+        } catch (Exception $e) {
+            $conn->rollback();
+            $error = "Insertion failed: " . htmlspecialchars($e->getMessage());
+        } finally {
+            // Close statements only if they exist and are not closed
+            if (isset($batch_stmt) && $batch_stmt instanceof mysqli_stmt) {
+                $batch_stmt->close();
+            }
+            if (isset($stmt) && $stmt instanceof mysqli_stmt) {
+                $stmt->close();
+            }
         }
-        $stmt->close();
-    } else {
-        echo "Prepare failed: " . $conn->error;
     }
 }
+
+// Default form values
+$rangeStart = $_POST['rangeStart'] ?? 1;
+$rangeStep = $_POST['rangeStep'] ?? 100;
+$year = $_POST['year'] ?? '';
+$botanical_name = $_POST['bot'] ?? '';
 ?>
-<!doctype html>
 <html lang="en">
 
 <head>
-    <!-- Required meta tags -->
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-
-    <!-- Bootstrap CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
-    <link rel="stylesheet" type="text/css" href="styles.css">
-
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Fill QR Details</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
 
     <style>
-        .btn:hover {
-            background-color: white !important;
-            color: black !important;
+        body {
+            background-image: url('sdh_bg_2.png');
+            font-family: 'Arial', sans-serif;
+        }
+
+        .card {
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            background-color: #fff;
+        }
+
+        .btn-primary {
+            background-color: #28a745;
+            border-color: #28a745;
+            transition: background-color 0.3s ease;
+        }
+
+        .btn-primary:hover {
+            background-color: #218838;
+            border-color: #1e7e34;
+        }
+
+        .form-control,
+        .form-select {
+            border-radius: 6px;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-control:focus,
+        .form-select:focus {
+            border-color: #28a745;
+            box-shadow: 0 0 0 0.2rem rgba(40, 167, 69, 0.25);
+        }
+
+        .color-preview {
+            width: 24px;
+            height: 24px;
+            border: 1px solid #dee2e6;
+            border-radius: 50%;
+            display: inline-block;
+            vertical-align: middle;
+            margin-left: 8px;
+        }
+
+        .alert {
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            font-weight: 500;
+            color: #333;
+        }
+
+        .form-text {
+            color: #6c757d;
         }
     </style>
 </head>
 
-<body class="bg-light">
+<body>
     <?php include 'components/navbar.php'; ?>
     <br>
     <div class="container my-5">
-        <h2 class="text-center my-3" style="color: rgb(210, 234, 211);">Fill the QR Details</h2>
-        <h4 class="text-center my-3" style="color: rgb(210, 234, 211);">Please fill the details below to add a new Record</h4>
-        <section id="qrFormSection">
-            <div class="card p-4 mx-auto bg-light" style="max-width: 800px; opacity: 0.85; border-radius: 10px;">
-                <form method="post" id="qrForm">
-                    <!-- Email Input with Icon -->
-                    <!--<div class="form-group mb-4">
-                        <label for="email" class="form-label">Email</label>
-                        <div class="input-group">
-                            <div class="input-group-prepend">
-                                <span class="input-group-text"><i class="bi bi-envelope"></i></span>
-                            </div>
-                            <input type="email" class="form-control" placeholder="Enter Your Email" name="email" id="email" required>
-                        </div>
-                    </div>-->
-                    <div class="row g-3 align-items-end">
-                        <div class="col-md-6">
-                            <label for="rangeStart" class="form-label">Start</label>
-                            <input type="number" class="form-control" id="rangeStart" name="rangeStart" required>
-                        </div>
-                        <div class="col-md-6">
-                            <label for="rangeStep" class="form-label">Step</label>
-                            <input type="number" class="form-control" id="rangeStep" name="rangeStep" max="5000" min="1" required>
-                        </div>
-                    </div>
-                    <div class="form-text">Specify the starting row and how many QR codes to generate (step, max 5000)</div>
-                    <br>
-                    <!--
-                    <div class="form-group mb-4">
-                        <label for="cellColorSelect" class="form-label">Background Color</label>
-                        <div class="input-group">
-                            <div class="input-group-prepend">
-                                <span class="input-group-text"><i class="bi bi-palette"></i></span>
-                            </div>
-                            <select name="cellColorSelect" id="cellColorSelect" class="form-select" required>
-                                <option value="">Select a Color</option>
-                                <?php /*
-                                $sql = "SELECT color_name, color_code FROM colors";
-                                $result = $conn->query($sql);
-                                if ($result && $result->num_rows > 0) {
-                                    while ($row = $result->fetch_assoc()):
-                                        $normalized = strtolower(trim($row['color_name']));
-                                ?>
-                                        <option value="<?= htmlspecialchars($normalized) ?>"
-                                            style="background-color: rgb(<?= $row['color_code'] ?>)">
-                                            <?= ucfirst(htmlspecialchars($normalized)) ?>
-                                        </option>
-                                <?php endwhile;
-                                    $result->free();
-                                } else {
-                                    echo "<option value=''>No colors available</option>";
-                                }*/
-                                ?>
-                            </select>
-                        </div>
-                    </div>-->
-                    <!-- Estate Dropdown with Icon -->
-                    <div class="form-group mb-4">
-                        <label for="estate" class="form-label">Estate QR Belongs to</label>
-                        <div class="input-group">
-                            <div class="input-group-prepend">
-                                <span class="input-group-text"><i class="bi bi-house-door"></i></span>
-                            </div>
-                            <select name="estate" class="form-control" id="estate" required>
-                                <option value="">Select an Estate</option>
-                                <?php
-                                $sql = "SELECT estate_name FROM estate";
-                                $result = $conn->query($sql);
-                                if ($result->num_rows > 0) {
-                                    while ($row = $result->fetch_assoc()) {
-                                        echo "<option value='" . $row['estate_name'] . "'>" . $row['estate_name'] . "</option>";
-                                    }
-                                } else {
-                                    echo "<option value=''>No estates available</option>";
-                                }
-                                ?>
-                            </select>
-                        </div>
-                    </div>
-                    <!-- Submit Button -->
-                    <div class="btn" style="width: 100%; background-color: green;">
-                        <button type="submit" name="submit"
-                            style="background-color: green; border: none; width: 100%; color: white; font-size: 17px;"
-                            class="btn">Add Batch</button>
-                    </div>
-                </form>
+        <h2 class="text-center fw-bold mb-3" style="color: #40f23d;">Add QR Batch Details</h2>
+        <h5 class="text-center fw-semibold mb-4 " style="color: #40f23d;">Enter details to create a new batch</h5>
+        <?php if ($error): ?>
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <strong>Error:</strong> <?php echo htmlspecialchars($error); ?>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
             </div>
-        </section>
+        <?php endif; ?>
+        <?php if ($success): ?>
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                <strong>Success:</strong> <?php echo htmlspecialchars($success); ?>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        <?php endif; ?>
+        <div class="card p-4 mx-auto " style="max-width: 600px; opacity: 0.80;">
+            <form method="post" id="qrForm" novalidate>
+                <div class="row g-3 mb-1">
+                    <div class="col-md-6">
+                        <label for="rangeStart" class="form-label">Range Start</label>
+                        <input type="number" class="form-control" id="rangeStart" name="rangeStart" value="<?php echo htmlspecialchars($rangeStart); ?>" required min="1" aria-describedby="rangeStartHelp">
+                        <div id="rangeStartHelp" class="form-text">Starting plant number</div>
+                        <div class="invalid-feedback">Please enter a positive number.</div>
+                    </div>
+                    <div class="col-md-6">
+                        <label for="rangeStep" class="form-label">Range Step</label>
+                        <input type="number" class="form-control" id="rangeStep" name="rangeStep" value="<?php echo htmlspecialchars($rangeStep); ?>" aria-describedby="rangeStepHelp">
+                        <div id="rangeStepHelp" class="form-text">How many qr codes from starting</div>
+                        <div class="invalid-feedback">Maximum step is 5000.</div>
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <label for="year" class="form-label">Year</label>
+                    <input type="text" class="form-control" id="year" name="year" value="<?php echo htmlspecialchars($year); ?>" required placeholder="e.g., 24/25" aria-describedby="yearHelp">
+                    <div id="yearHelp" class="form-text">Year of the batch</div>
+                    <div class="invalid-feedback">Please enter the year.</div>
+                </div>
+                <div class="mb-3">
+                    <label for="bot" class="form-label">Botanical Name</label>
+                    <input type="text" class="form-control" id="bot" name="bot" value="<?php echo htmlspecialchars($botanical_name); ?>" required placeholder="e.g., Aquilaria Crassna" aria-describedby="botHelp">
+                    <div id="botHelp" class="form-text">Scientific name of the plant</div>
+                    <div class="invalid-feedback">Please enter the botanical name.</div>
+                </div>
+                <div class="mb-3">
+                    <label for="cellColorSelect" class="form-label">Background Color</label>
+                    <div class="input-group">
+                        <select name="cellColorSelect" id="cellColorSelect" class="form-select" required aria-describedby="colorHelp">
+                            <option value="">Select a color</option>
+                            <?php
+                            $result = $conn->query("SELECT color_code, color_name FROM colors");
+                            if ($result && $result->num_rows > 0) {
+                                while ($row = $result->fetch_assoc()) {
+                                    $color_code = htmlspecialchars($row['color_code']);
+                                    $color_name = htmlspecialchars($row['color_name']);
+                                    echo "<option value='$color_code' data-color='$color_code' style='background-color: rgb($color_code); color: #000;'>$color_name</option>";
+                                }
+                                $result->free();
+                            } else {
+                                echo "<option value=''>No colors available</option>";
+                            }
+                            ?>
+                        </select>
+                        <span id="colorPreview" class="color-preview" style="background-color: #fff;"></span>
+                    </div>
+                    <div id="colorHelp" class="form-text">Background color for the QR code</div>
+                    <div class="invalid-feedback">Please select a color.</div>
+                </div>
+                <div class="text-center">
+                    <button type="submit" name="submit" class="btn btn-primary w-100">Add Batch</button>
+                </div>
+            </form>
+        </div>
     </div>
-    <!-- Bootstrap JS -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-    <!-- Smooth Scroll JavaScript -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
+    <script>
+        // Client-side validation
+        const form = document.getElementById('qrForm');
+        form.addEventListener('submit', function(event) {
+            let valid = true;
+            const rangeStart = document.getElementById('rangeStart');
+            const rangeStep = document.getElementById('rangeStep');
+            const year = document.getElementById('year');
+            const bot = document.getElementById('bot');
+            const cellColorSelect = document.getElementById('cellColorSelect');
+
+            if (!rangeStart.value || parseInt(rangeStart.value) < 1) {
+                rangeStart.classList.add('is-invalid');
+                valid = false;
+            } else {
+                rangeStart.classList.remove('is-invalid');
+            }
+
+            if (!rangeStep.value || parseInt(rangeStep.value) < 1 || parseInt(rangeStep.value) > 5000) {
+                rangeStep.classList.add('is-invalid');
+                valid = false;
+            } else {
+                rangeStep.classList.remove('is-invalid');
+            }
+
+            if (!year.value.trim()) {
+                year.classList.add('is-invalid');
+                valid = false;
+            } else {
+                year.classList.remove('is-invalid');
+            }
+
+            if (!bot.value.trim()) {
+                bot.classList.add('is-invalid');
+                valid = false;
+            } else {
+                bot.classList.remove('is-invalid');
+            }
+
+            if (!cellColorSelect.value) {
+                cellColorSelect.classList.add('is-invalid');
+                valid = false;
+            } else {
+                cellColorSelect.classList.remove('is-invalid');
+            }
+
+            if (!valid) {
+                event.preventDefault();
+                event.stopPropagation();
+            }
+        });
+
+        // Color preview
+        document.getElementById('cellColorSelect').addEventListener('change', function() {
+            const color = this.options[this.selectedIndex].getAttribute('data-color') || '255,255,255';
+            document.getElementById('colorPreview').style.backgroundColor = `rgb(${color})`;
+        });
+    </script>
     <?php include 'components/footer.php'; ?>
 </body>
+
 </html>

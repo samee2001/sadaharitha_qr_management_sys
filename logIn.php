@@ -7,7 +7,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $password = $_POST['password'];
 
     // Prepare the SQL query to fetch the user from the 'users' table
-    $stmt = $conn->prepare("SELECT id, name, password, email, role, handle_csv_privillages, gen_qr_privillages, qr_details_privillages, estate_privillages, user_level FROM users WHERE email = ?");
+    $stmt = $conn->prepare("SELECT id, name, password, email,  handle_csv_privillages, gen_qr_privillages, qr_details_privillages, estate_privillages, user_level FROM users WHERE email = ?");
     $stmt->bind_param("s", $email);
     $stmt->execute();
     $result = $stmt->get_result();
@@ -21,7 +21,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             // Successful login, set session variables
             $_SESSION['email'] = $email;
             $_SESSION['name'] = $user['name'];
-            $_SESSION['role'] = $user['role'];
+            //$_SESSION['role'] = $user['role'];
             $_SESSION['handle_csv_privillages'] = $user['handle_csv_privillages'];
             $_SESSION['gen_qr_privillages'] = $user['gen_qr_privillages'];
             $_SESSION['qr_details_privillages'] = $user['qr_details_privillages'];

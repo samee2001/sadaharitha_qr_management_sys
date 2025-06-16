@@ -15,11 +15,11 @@ $page = isset($_GET['page']) ? (int) $_GET['page'] : 1;
 $start_from = ($page - 1) * $records_per_page;
 
 // Fetch data for the current page
-$sql = "SELECT * FROM `qr_management` LIMIT $start_from, $records_per_page";
+$sql = "SELECT * FROM `qr_batch_details` LIMIT $start_from, $records_per_page";
 $result = $conn->query($sql);
 
 // Fetch total number of records to calculate total pages
-$total_records_query = "SELECT COUNT(*) as total_records FROM `qr_management`";
+$total_records_query = "SELECT COUNT(*) as total_records FROM `qr_batch_details`";
 $total_records_result = $conn->query($total_records_query);
 $total_records_row = $total_records_result->fetch_assoc();
 $total_records = $total_records_row['total_records'];
@@ -46,17 +46,17 @@ $total_pages = ceil($total_records / $records_per_page);
     
     <div class="container my-5 p-5 " style="background-color: rgb(231, 231, 231); border: 1px solid rgb(114, 234, 126); border-radius: 10px; opacity: 0.8; max-height: 550px;">
         <button type="button" class="btn btn-success"><a href="add_details.php"
-                class="text-light text-decoration-none">Add QR Details</a></button>
+                class="text-light text-decoration-none">Add Batch Details</a></button>
         <table class="table my-5" >
             <thead>
                 <tr>
                     <th scope="col">ID</th>
-                    <!--<th scope="col">Name</th>-->
+                    
                     <th scope="col">Email</th>
                     <th scope="col">Start</th>
                     <th scope="col">Step</th>
-                    <!--<th scope="col">Time</th>-->
-                    <th scope="col">Issued Estate</th>
+                    
+                    
                     <th scope="col">Action</th>
                 </tr>
             </thead>
@@ -66,14 +66,14 @@ $total_pages = ceil($total_records / $records_per_page);
                 if ($result->num_rows > 0) {
                     while ($row = $result->fetch_assoc()) {
                         echo "<tr>";
-                        echo "<td>" . htmlspecialchars($row['id']) . "</td>";
-                        //echo "<td>" . htmlspecialchars($row['updater_name']) . "</td>";
+                        echo "<td>" . htmlspecialchars($row['batch_id']) . "</td>";
+                        
                         echo "<td>" . htmlspecialchars($_SESSION['email']) . "</td>";
                         echo "<td>" . htmlspecialchars($row['start']) . "</td>";
                         echo "<td>" . htmlspecialchars($row['step']) . "</td>";
-                        //echo "<td>" . htmlspecialchars($row['created_at']) . "</td>";
-                        echo "<td>" . htmlspecialchars($row['estate']) . "</td>";
-                        echo "<td><button type='button' class='btn btn-primary'><a href='update_page.php?updateid=" . $row["id"] . "' class='text-light text-decoration-none'>Update</a></button></td>";
+                        
+                        
+                        echo "<td><button type='button' class='btn btn-primary'><a href='update_page_batch.php?updateid=" . $row["batch_id"] . "' class='text-light text-decoration-none px-2'>Edit</a></button></td>";
                         echo "</tr>";
                     }
                 } else {

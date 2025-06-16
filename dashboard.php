@@ -52,6 +52,36 @@ if (!isset($_SESSION['email'])) {
                 </div>
             <?php endif; ?>
 
+            <!-- QR Details Card -->
+            <?php if ($_SESSION['qr_details_privillages'] < 10): ?>
+                <div class="col">
+                    <a href="#" class="card text-white bg-danger text-decoration-none"
+                        style="pointer-events: none; opacity: 0.75;">
+                        <div class="card-body text-center">
+                            <div class="icon fs-1 mb-3"><i class="bi bi-files"></i></div>
+                            <h5 class="card-title">Create Batch</h5>
+                            <div class="card-footer text-center">
+                                <small>More Details</small>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+            <?php endif; ?>
+
+            <?php if ($_SESSION['qr_details_privillages'] >= 10): ?>
+                <div class="col">
+                    <a href="plantation_management.php" class="card text-white bg-danger text-decoration-none">
+                        <div class="card-body text-center">
+                            <div class="icon fs-1 mb-3"><i class="bi bi-files"></i></div>
+                            <h5 class="card-title">Create Batch</h5>
+                            <div class="card-footer text-center">
+                                <small>More Details</small>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+            <?php endif; ?>
+
             <!-- Generate PDF Card -->
             <?php if ($_SESSION['gen_qr_privillages'] > 0): ?>
                 <div class="col">
@@ -81,36 +111,7 @@ if (!isset($_SESSION['email'])) {
                 </div>
             <?php endif; ?>
 
-            <!-- QR Details Card -->
-            <?php if ($_SESSION['qr_details_privillages'] < 10): ?>
-                <div class="col">
-                    <a href="#" class="card text-white bg-danger text-decoration-none"
-                        style="pointer-events: none; opacity: 0.75;">
-                        <div class="card-body text-center">
-                            <div class="icon fs-1 mb-3"><i class="bi bi-files"></i></div>
-                            <h5 class="card-title">QR Details</h5>
-                            <div class="card-footer text-center">
-                                <small>More Details</small>
-                            </div>
-                        </div>
-                    </a>
-                </div>
-            <?php endif; ?>
-
-            <?php if ($_SESSION['qr_details_privillages'] >= 10): ?>
-                <div class="col">
-                    <a href="plantation_management.php" class="card text-white bg-danger text-decoration-none">
-                        <div class="card-body text-center">
-                            <div class="icon fs-1 mb-3"><i class="bi bi-files"></i></div>
-                            <h5 class="card-title">QR Details</h5>
-                            <div class="card-footer text-center">
-                                <small>More Details</small>
-                            </div>
-                        </div>
-                    </a>
-                </div>
-            <?php endif; ?>
-
+            
             <!-- Estate Management Card -->
             <?php if ($_SESSION['estate_privillages'] < 20): ?>
                 <div class="col">

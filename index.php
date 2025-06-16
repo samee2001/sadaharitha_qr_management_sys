@@ -17,14 +17,17 @@ define('DB_NAME', 'qrcode_db'); // Your database name
 require('fpdf186/fpdf.php');
 require('phpqrcode/qrlib.php');
 require_once 'functions/qr_pdf_generator.php';
+
 // Create database connection
 $mysqli = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME);
 if ($mysqli->connect_error) {
     die("Connection failed: " . $mysqli->connect_error);
 }
+
 $tableName = 'plant_data';
 $uploadSuccess = false;
-//$uploadSuccess = processCSVUpload($mysqli, $_FILES['csvfile'], $tableName);  //return true or false.
+$errorMessage = ''; // Initialize error message variable
+
 if (isset($_POST['upload'])) {
     $uploadResult = processCSVUpload(
         $mysqli,
@@ -37,27 +40,8 @@ if (isset($_POST['upload'])) {
         $uploadSuccess = true;
         $_SESSION['tableName'] = $tableName;
     } else {
-        // Show error message with proper alert
+        // Store error message for rendering later
         $errorMessage = $uploadResult['error'];
-
-        // Check if error is about existing table
-        if (str_contains($errorMessage, "already exists")) {
-            echo '
-            <br>
-            <br>
-            <br>
-            <div class="alert alert-danger alert-dismissible fade show mt-3" role="alert">
-                    <i class="bi bi-exclamation-octagon-fill me-2"></i>
-                    ' . htmlspecialchars($errorMessage) . '
-                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                  </div>';
-        } else {
-            // Generic error alert
-            echo '<div class="alert alert-warning alert-dismissible fade show mt-3" role="alert">
-                    ' . htmlspecialchars($errorMessage) . '
-                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                  </div>';
-        }
     }
 }
 
@@ -85,7 +69,14 @@ if (isset($_POST['upload'])) {
         </div>
         <?php if ($uploadSuccess): ?>
             <div class="alert alert-success alert-dismissible fade show" role="alert">
-                ✅ CSV file uploaded and processed successfully!
+                ✅ CSV file uploaded, processed and Duplicates Handled successfully!
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        <?php endif; ?>
+        <?php if ($errorMessage): ?>
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <i class="bi bi-exclamation-octagon-fill me-2"></i>
+                <?= htmlspecialchars($errorMessage) ?>
                 <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
             </div>
         <?php endif; ?>
@@ -96,20 +87,6 @@ if (isset($_POST['upload'])) {
                     <label for="csvfile" class="form-label">Choose CSV File</label>
                     <input type="file" class="form-control" id="csvfile" name="csvfile" accept=".csv">
                     <br>
-                    <label for="cellColorSelect" class="form-label"> Background Color</label>
-                    <select name="cellColorSelect" class="form-select">
-                        <?php
-                        $result = $mysqli->query("SELECT color_name, color_code FROM colors");
-                        while ($row = $result->fetch_assoc()):
-                            $normalized = strtolower(trim($row['color_name']));
-                            $rgb = explode(',', $row['color_code']);
-                            ?>
-                            <option value="<?= htmlspecialchars($normalized) ?>"
-                                style="background-color: rgb(<?= $row['color_code'] ?>)">
-                                <?= ucfirst(htmlspecialchars($normalized)) ?>
-                            </option>
-                        <?php endwhile; ?>
-                    </select>
                 </div>
                 <div class="text-center"><button type="submit" name="upload"
                         class="btn btn-success mb-4 btn-custom ">Upload CSV</button>

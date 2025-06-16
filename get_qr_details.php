@@ -13,7 +13,7 @@ if (!isset($_GET['id']) || !is_numeric($_GET['id'])) {
 $id = intval($_GET['id']);
 
 // Prepare the SQL statement to fetch start and step
-$sql = "SELECT start, step FROM qr_management WHERE id = ?";
+$sql = "SELECT start, step FROM qr_batch_details WHERE id = ?";
 $stmt = $mysqli->prepare($sql);
 if ($stmt) {
     $stmt->bind_param("i", $id);

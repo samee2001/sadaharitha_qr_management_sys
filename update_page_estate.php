@@ -67,6 +67,7 @@ if (isset($_POST['submit'])) {
 </head>
 
 <body class="bg-light">
+    
     <div class="container my-5">
         <h2 class="text-center my-3" style="color: rgb(210, 234, 211);">Update Estate Details</h2>
         <h4 class="text-center my-3" style="color:rgb(210, 234, 211);">Please fill the details below to update the
