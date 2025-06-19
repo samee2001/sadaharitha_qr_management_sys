@@ -19,7 +19,7 @@ if (session_status() === PHP_SESSION_NONE) {
         <!-- Navbar content -->
         <div class="collapse navbar-collapse justify-content-center" style="margin-left: 350px;" id="navbarNav">
             <ul class="navbar-nav ms-lg-5">
-                <?php if ($_SESSION['handle_csv_privillages'] >= 20): ?>
+                <?php /* if ($_SESSION['handle_csv_privillages'] >= 20): ?>
                     <li class="nav-item">
                         <a class="nav-link" href="index.php" target="_parent" rel="noopener">Handle CSV</a>
                     </li>
@@ -30,7 +30,7 @@ if (session_status() === PHP_SESSION_NONE) {
                             Handle CSV
                         </a>
                     </li>
-                <?php endif; ?>
+                <?php endif; */?>
 
                 <?php if ($_SESSION['gen_qr_privillages'] > 0): ?>
                     <li class="nav-item">
@@ -48,7 +48,7 @@ if (session_status() === PHP_SESSION_NONE) {
                 <?php if ($_SESSION['qr_details_privillages'] < 10): ?>
                     <li class="nav-item">
                         <a class="nav-link disabled" <?php echo $_SESSION['qr_details_privillages'] < 10 ? 'aria-disabled="true"' : 'href="#" target="_parent" rel="noopener"'; ?>>
-                            Batch Details
+                            Batch Creation
                         </a>
                     </li>
                 <?php endif; ?>

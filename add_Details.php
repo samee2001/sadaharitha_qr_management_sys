@@ -23,6 +23,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit'])) {
     $year = trim($_POST['year'] ?? '');
     $botanical_name = trim($_POST['bot'] ?? '');
     $email = $_SESSION['email'];
+    //current date and time
+    $created_at = date('Y-m-d H:i:s');
+    
 
     // Validate inputs
     if (empty($year)) {
@@ -50,7 +53,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit'])) {
     // Check for range overlap
     if (!$error) {
         $end = $start + $step - 1;
-        $stmt = $conn->prepare("SELECT plant_number FROM data_plant WHERE plant_number BETWEEN ? AND ?");
+        $stmt = $conn->prepare("SELECT plant_number FROM plant_data WHERE plant_number BETWEEN ? AND ?");
         if (!$stmt) {
             $error = "Range check failed: " . $conn->error;
         } else {
@@ -70,11 +73,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit'])) {
         $stmt = null;
         try {
             // Insert batch details into qr_batch_details
-            $batch_stmt = $conn->prepare("INSERT INTO qr_batch_details (start, step, email, background_color) VALUES (?, ?, ?, ?)");
+            $batch_stmt = $conn->prepare("INSERT INTO qr_batch_details (start, step, email, background_color, created_at) VALUES (?, ?, ?, ?,?)");
             if (!$batch_stmt) {
                 throw new Exception("Batch prepare failed: " . $conn->error);
             }
-            $batch_stmt->bind_param("iiss", $start, $step, $email, $background_color);
+            $batch_stmt->bind_param("iisss", $start, $step, $email, $background_color, $created_at);
             if (!$batch_stmt->execute()) {
                 throw new Exception("Batch insert failed: " . $batch_stmt->error);
             }
@@ -83,7 +86,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit'])) {
             $batch_id = $conn->insert_id;
 
             // Insert records into data_plant
-            $stmt = $conn->prepare("INSERT INTO data_plant (plant_number, year, email, botanical_name, background_color, qr_code_details, batch_id) VALUES (?, ?, ?, ?, ?, ?, ?)");
+            $stmt = $conn->prepare("INSERT INTO plant_data (plant_number, year, email, botanical_name, background_color, qr_code_details, batch_id) VALUES (?, ?, ?, ?, ?, ?, ?)");
             if (!$stmt) {
                 throw new Exception("Prepare failed: " . $conn->error);
             }
@@ -101,8 +104,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit'])) {
             }
 
             $conn->commit();
-            $success = "Batch added successfully!";
-            header("Location: generate_pdf.php");
+            $_SESSION['success'] = "Batch added successfully!";
+            header("Location: add_Details.php");
             exit();
         } catch (Exception $e) {
             $conn->rollback();
@@ -207,11 +210,12 @@ $botanical_name = $_POST['bot'] ?? '';
                 <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
             </div>
         <?php endif; ?>
-        <?php if ($success): ?>
+        <?php if (isset($_SESSION['success'])): ?>
             <div class="alert alert-success alert-dismissible fade show" role="alert">
-                <strong>Success:</strong> <?php echo htmlspecialchars($success); ?>
+                <strong>Success:</strong> <?php echo htmlspecialchars($_SESSION['success']); ?>
                 <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
             </div>
+            <?php unset($_SESSION['success']); ?>
         <?php endif; ?>
         <div class="card p-4 mx-auto " style="max-width: 600px; opacity: 0.80;">
             <form method="post" id="qrForm" novalidate>
@@ -237,9 +241,16 @@ $botanical_name = $_POST['bot'] ?? '';
                 </div>
                 <div class="mb-3">
                     <label for="bot" class="form-label">Botanical Name</label>
-                    <input type="text" class="form-control" id="bot" name="bot" value="<?php echo htmlspecialchars($botanical_name); ?>" required placeholder="e.g., Aquilaria Crassna" aria-describedby="botHelp">
+                    <select class="form-select" id="bot" name="bot" required aria-describedby="botHelp">
+                        <option value="">Select Scientific Name</option>
+                        <option value="Aquilaria Crassna" <?php if ($botanical_name == "Aquilaria Crassna") echo "selected"; ?>>Aquilaria Crassna</option>
+                        <option value="Aquilaria Senensis" <?php if ($botanical_name == "Aquilaria Senensis") echo "selected"; ?>>Aquilaria Senensis</option>
+                        <option value="Aquilaria Sabintegra" <?php if ($botanical_name == "Aquilaria Sabintegra") echo "selected"; ?>>Aquilaria Sabintegra</option>
+                        <option value="Aquilaria Agallocha" <?php if ($botanical_name == "Aquilaria Agallocha") echo "selected"; ?>>Aquilaria Agallocha</option>
+                        <!-- Add more hardcoded options as needed -->
+                    </select>
                     <div id="botHelp" class="form-text">Scientific name of the plant</div>
-                    <div class="invalid-feedback">Please enter the botanical name.</div>
+                    <div class="invalid-feedback">Please select the botanical name.</div>
                 </div>
                 <div class="mb-3">
                     <label for="cellColorSelect" class="form-label">Background Color</label>
@@ -271,64 +282,9 @@ $botanical_name = $_POST['bot'] ?? '';
             </form>
         </div>
     </div>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
-    <script>
-        // Client-side validation
-        const form = document.getElementById('qrForm');
-        form.addEventListener('submit', function(event) {
-            let valid = true;
-            const rangeStart = document.getElementById('rangeStart');
-            const rangeStep = document.getElementById('rangeStep');
-            const year = document.getElementById('year');
-            const bot = document.getElementById('bot');
-            const cellColorSelect = document.getElementById('cellColorSelect');
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="Js/validation.js">
 
-            if (!rangeStart.value || parseInt(rangeStart.value) < 1) {
-                rangeStart.classList.add('is-invalid');
-                valid = false;
-            } else {
-                rangeStart.classList.remove('is-invalid');
-            }
-
-            if (!rangeStep.value || parseInt(rangeStep.value) < 1 || parseInt(rangeStep.value) > 5000) {
-                rangeStep.classList.add('is-invalid');
-                valid = false;
-            } else {
-                rangeStep.classList.remove('is-invalid');
-            }
-
-            if (!year.value.trim()) {
-                year.classList.add('is-invalid');
-                valid = false;
-            } else {
-                year.classList.remove('is-invalid');
-            }
-
-            if (!bot.value.trim()) {
-                bot.classList.add('is-invalid');
-                valid = false;
-            } else {
-                bot.classList.remove('is-invalid');
-            }
-
-            if (!cellColorSelect.value) {
-                cellColorSelect.classList.add('is-invalid');
-                valid = false;
-            } else {
-                cellColorSelect.classList.remove('is-invalid');
-            }
-
-            if (!valid) {
-                event.preventDefault();
-                event.stopPropagation();
-            }
-        });
-
-        // Color preview
-        document.getElementById('cellColorSelect').addEventListener('change', function() {
-            const color = this.options[this.selectedIndex].getAttribute('data-color') || '255,255,255';
-            document.getElementById('colorPreview').style.backgroundColor = `rgb(${color})`;
-        });
     </script>
     <?php include 'components/footer.php'; ?>
 </body>

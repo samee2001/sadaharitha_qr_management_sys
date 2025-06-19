@@ -13,7 +13,7 @@ if (isset($_POST['submit'])) {
     // Sanitize and assign POST data to variables
     $emailUser = mysqli_real_escape_string($conn, $_POST['email_user']);
     $userName = mysqli_real_escape_string($conn, $_POST['user_name']);
-    $csvPrivilege = mysqli_real_escape_string($conn, $_POST['csv_privilege']);
+   // $csvPrivilege = mysqli_real_escape_string($conn, $_POST['csv_privilege']);
     $qrGeneratePrivilege = mysqli_real_escape_string($conn, $_POST['qr_generate_privilege']);
     $qrDetailsPrivilege = mysqli_real_escape_string($conn, $_POST['qr_details_privilege']);
     $estateManagementPrivilege = mysqli_real_escape_string($conn, $_POST['estate_management_privilege']);
@@ -41,18 +41,18 @@ if (isset($_POST['submit'])) {
     }
 
     // Convert "allow"/"deny" to integer values
-    $csvPrivilegeValue = ($csvPrivilege === 'allow') ? rand(20, 30) : 0;
+    //$csvPrivilegeValue = ($csvPrivilege === 'allow') ? rand(20, 30) : 0;
     $qrGeneratePrivilegeValue = ($qrGeneratePrivilege === 'allow') ? rand(1, 30) : 0;
     $qrDetailsPrivilegeValue = ($qrDetailsPrivilege === 'allow') ? rand(10, 30) : 0;
     $estateManagementPrivilegeValue = ($estateManagementPrivilege === 'allow') ? rand(20, 30) : 0;
     $userLevelValue = ($userLevel === 'admin') ? rand(20, 30) : (($userLevel === 'super_user') ? rand(10, 20) : (($userLevel === 'user') ? rand(1, 10) : 0));
 
     // Proceed with insertion if no duplicate found
-    $sql = "INSERT INTO `users` (`email`, `name`, `handle_csv_privillages`, `gen_qr_privillages`, `qr_details_privillages`, `estate_privillages`, `user_level`) VALUES (?, ?, ?, ?, ?, ?, ?)";
+    $sql = "INSERT INTO `users` (`email`, `name`,  `gen_qr_privillages`, `qr_details_privillages`, `estate_privillages`, `user_level`) VALUES (?, ?, ?, ?, ?, ?)";
 
     if ($stmt = mysqli_prepare($conn, $sql)) {
         // Bind the parameters to the prepared statement
-        mysqli_stmt_bind_param($stmt, "ssiiiii", $emailUser, $userName, $csvPrivilegeValue, $qrGeneratePrivilegeValue, $qrDetailsPrivilegeValue, $estateManagementPrivilegeValue, $userLevelValue);
+        mysqli_stmt_bind_param($stmt, "ssiiii", $emailUser, $userName,  $qrGeneratePrivilegeValue, $qrDetailsPrivilegeValue, $estateManagementPrivilegeValue, $userLevelValue);
 
         // Execute the statement
         if (mysqli_stmt_execute($stmt)) {
@@ -120,22 +120,22 @@ if (isset($_POST['submit'])) {
                         <label for="name" class="form-label">User Name</label>
                         <input type="text" class="form-control" id="name" name="user_name" required>
                     </div>
-                    <div class="mb-3">
+                    <!-- <div class="mb-3">
                         <label for="csvPrivilege" class="form-label">CSV Privilege</label>
                         <select class="form-select" id="csvPrivilege" name="csv_privilege" required>
                             <option value="allow">Allow</option>
                             <option value="deny">Deny</option>
                         </select>
-                    </div>
+                    </div> -->
                     <div class="mb-3">
-                        <label for="qrGeneratePrivilege" class="form-label">QR Generate Privilege</label>
+                        <label for="qrGeneratePrivilege" class="form-label">QR Generation Privilege</label>
                         <select class="form-select" id="qrGeneratePrivilege" name="qr_generate_privilege" required>
                             <option value="allow">Allow</option>
                             <option value="deny">Deny</option>
                         </select>
                     </div>
                     <div class="mb-3">
-                        <label for="qrDetailsPrivilege" class="form-label">QR Details Privilege</label>
+                        <label for="qrDetailsPrivilege" class="form-label">Batch Creation Privilege</label>
                         <select class="form-select" id="qrDetailsPrivilege" name="qr_details_privilege" required>
                             <option value="allow">Allow</option>
                             <option value="deny">Deny</option>

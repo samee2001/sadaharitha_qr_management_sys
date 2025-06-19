@@ -53,7 +53,7 @@ if (isset($_POST['submit'])) {
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
     <!-- Bootstrap CSS -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.4.1/dist/css/bootstrap.min.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
     <link rel="stylesheet" type="text/css" href="styles.css">
     <title>Update Estate Details</title>
@@ -67,7 +67,8 @@ if (isset($_POST['submit'])) {
 </head>
 
 <body class="bg-light">
-    
+    <?php include 'components/navbar.php'; ?>
+    <br><br>
     <div class="container my-5">
         <h2 class="text-center my-3" style="color: rgb(210, 234, 211);">Update Estate Details</h2>
         <h4 class="text-center my-3" style="color:rgb(210, 234, 211);">Please fill the details below to update the
@@ -129,6 +130,7 @@ if (isset($_POST['submit'])) {
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     <!-- Bootstrap Icons -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.js"></script>
+    <?php include 'components/footer.php'; ?>
 </body>
 
 </html>

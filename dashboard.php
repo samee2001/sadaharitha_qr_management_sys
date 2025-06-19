@@ -7,6 +7,7 @@ if (!isset($_SESSION['email'])) {
 ?>
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -14,48 +15,18 @@ if (!isset($_SESSION['email'])) {
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-
 </head>
 
 <body style="background-image: url('sdh_bg.png'); background-size: cover;">
     <?php include 'components/navbar.php'; ?>
     <div class="container mt-5">
         <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-3" style="margin-top: 150px;">
-            <!-- Handle CSV Card -->
-            <?php if ($_SESSION['handle_csv_privillages'] < 20): ?>
-                <div class="col">
-                    <a href="#" class="card text-white bg-primary text-decoration-none"
-                        style="pointer-events: none; opacity: 0.75;"
-                        title="This option is disabled for users and superusers">
-                        <div class="card-body text-center">
-                            <div class="icon fs-1 mb-3"><i class="fas fa-book"></i></div>
-                            <h5 class="card-title">Handle-CSV</h5>
-                            <div class="card-footer text-center">
-                                <small>More Details</small>
-                            </div>
-                        </div>
-                    </a>
-                </div>
-            <?php endif; ?>
 
-            <?php if ($_SESSION['handle_csv_privillages'] >= 20): ?>
-                <div class="col">
-                    <a href="index.php" class="card text-white bg-primary text-decoration-none">
-                        <div class="card-body text-center">
-                            <div class="icon fs-1 mb-3"><i class="fas fa-book"></i></div>
-                            <h5 class="card-title">Handle-CSV</h5>
-                            <div class="card-footer text-center">
-                                <small>More Details</small>
-                            </div>
-                        </div>
-                    </a>
-                </div>
-            <?php endif; ?>
 
             <!-- QR Details Card -->
             <?php if ($_SESSION['qr_details_privillages'] < 10): ?>
                 <div class="col">
-                    <a href="#" class="card text-white bg-danger text-decoration-none"
+                    <a href="#" class="card text-white bg-primary text-decoration-none"
                         style="pointer-events: none; opacity: 0.75;">
                         <div class="card-body text-center">
                             <div class="icon fs-1 mb-3"><i class="bi bi-files"></i></div>
@@ -70,7 +41,7 @@ if (!isset($_SESSION['email'])) {
 
             <?php if ($_SESSION['qr_details_privillages'] >= 10): ?>
                 <div class="col">
-                    <a href="plantation_management.php" class="card text-white bg-danger text-decoration-none">
+                    <a href="plantation_management.php" class="card text-white bg-primary text-decoration-none">
                         <div class="card-body text-center">
                             <div class="icon fs-1 mb-3"><i class="bi bi-files"></i></div>
                             <h5 class="card-title">Create Batch</h5>
@@ -111,7 +82,7 @@ if (!isset($_SESSION['email'])) {
                 </div>
             <?php endif; ?>
 
-            
+
             <!-- Estate Management Card -->
             <?php if ($_SESSION['estate_privillages'] < 20): ?>
                 <div class="col">
@@ -140,7 +111,7 @@ if (!isset($_SESSION['email'])) {
                     </a>
                 </div>
             <?php endif; ?>
-            <?php if ($_SESSION['user_level'] >=20): ?>
+            <?php if ($_SESSION['user_level'] >= 20): ?>
                 <div class="col">
                     <a href="manage_users.php" class="card text-white bg-success text-decoration-none">
                         <div class="card-body text-center">

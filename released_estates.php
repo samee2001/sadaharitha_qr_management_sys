@@ -16,11 +16,11 @@ $start_from = ($page - 1) * $records_per_page;
 
 
 // Fetch data for the current page
-$sql = "SELECT * FROM `qr_batch_details` ORDER BY batch_id DESC LIMIT $start_from, $records_per_page";
+$sql = "SELECT * FROM `issued_estate` ORDER BY id DESC LIMIT $start_from, $records_per_page";
 $result = $conn->query($sql);
 
 // Fetch total number of records to calculate total pages
-$total_records_query = "SELECT COUNT(*) as total_records FROM `qr_batch_details`";
+$total_records_query = "SELECT COUNT(*) as total_records FROM `issued_estate`";
 $total_records_result = $conn->query($total_records_query);
 $total_records_row = $total_records_result->fetch_assoc();
 $total_records = $total_records_row['total_records'];
@@ -34,7 +34,7 @@ $total_pages = ceil($total_records / $records_per_page);
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>QR Details</title>
+    <title>Issued Estates</title>
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
@@ -57,10 +57,10 @@ $total_pages = ceil($total_records / $records_per_page);
                 <thead class="table-success sticky-top" style="font-size: 1rem;">
                     <tr class="text-center">
                         <th scope="col">ID</th>
-                        <th scope="col">Created By</th>
-                        <th scope="col">Created At</th>
-                        <th scope="col">Start</th>
-                        <th scope="col">Quantity</th>
+                        <th scope="col">Range Start</th>
+                        <th scope="col">Range End</th>
+                        <th scope="col">Issued at</th>
+                        <th scope="col">Estate ID</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -68,11 +68,12 @@ $total_pages = ceil($total_records / $records_per_page);
                     if ($result->num_rows > 0) {
                         while ($row = $result->fetch_assoc()) {
                             echo "<tr class='text-center'>";
-                            echo "<td>" . htmlspecialchars($row['batch_id']) . "</td>";
-                            echo "<td>" . htmlspecialchars($_SESSION['email']) . "</td>";
-                            echo "<td>" . htmlspecialchars($row['created_at']) . "</td>";
-                            echo "<td>" . htmlspecialchars($row['start']) . "</td>";
-                            echo "<td>" . htmlspecialchars($row['step']) . "</td>";
+                            echo "<td>" . htmlspecialchars($row['id']) . "</td>";
+                            //echo "<td>" . htmlspecialchars($_SESSION['email']) . "</td>";
+                            echo "<td>" . htmlspecialchars($row['range_start']) . "</td>";
+                            echo "<td>" . htmlspecialchars($row['range_end']) . "</td>";
+                            echo "<td>" . htmlspecialchars($row['issued_at']) . "</td>";
+                            echo "<td>" . htmlspecialchars($row['estate_id']) . "</td>";
                             echo "</tr>";
                         }
                     } else {

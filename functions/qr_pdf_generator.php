@@ -53,12 +53,7 @@ function generateQRPDF($mysqli, $params)
         return $colorMap;
     }
 
-    // Get selected color with fallback
-    //$colorMap = getColorMap($mysqli);
-    //$selectedColor = isset($_POST['cellColorSelect']) ? strtolower(trim($_POST['cellColorSelect'])) : 'white';
-
-    //$cellColor = $colorMap[$selectedColor] ; // Fallback to white
-    $cellColorStr = implode(',', $cellColor); // Convert to string like "255,255,255"
+   
 
     // Create QR code directory if not exists
     if (!file_exists('qrcodes')) {
@@ -67,7 +62,7 @@ function generateQRPDF($mysqli, $params)
     // Fetch data
     $startPlantNumber = $start; // Starting Plant_Number (integer)
     $limit = $step;
-    $tableName = 'data_plant';
+    $tableName = 'plant_data';
 
     $stmt = $mysqli->prepare("SELECT plant_number, qr_code_details FROM `$tableName` WHERE plant_number >= ? ORDER BY plant_number LIMIT ?");
     $stmt->bind_param("ii", $startPlantNumber, $limit); // 'i' for both

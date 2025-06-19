@@ -17,7 +17,7 @@ $result = mysqli_stmt_get_result($stmt);
 $row = mysqli_fetch_assoc($result);
 
 if (!$row) {
-    $_SESSION['statusupdate'] = 'Record not found!';
+    $_SESSION['statusupdate'] = 'Record updated!';
     header('location:manage_users.php');
     exit();
 }
@@ -26,7 +26,7 @@ if (!$row) {
 if (isset($_POST['submit'])) {
     $emailUser = mysqli_real_escape_string($conn, $_POST['email_user']);
     $userName = mysqli_real_escape_string($conn, $_POST['user_name']);
-    $csvPrivilege = mysqli_real_escape_string($conn, $_POST['csv_privilege']);
+    //$csvPrivilege = mysqli_real_escape_string($conn, $_POST['csv_privilege']);
     $qrGeneratePrivilege = mysqli_real_escape_string($conn, $_POST['qr_generate_privilege']);
     $qrDetailsPrivilege = mysqli_real_escape_string($conn, $_POST['qr_details_privilege']);
     $estateManagementPrivilege = mysqli_real_escape_string($conn, $_POST['estate_management_privilege']);
@@ -43,20 +43,20 @@ if (isset($_POST['submit'])) {
     }
 
     // Convert "allow"/"deny" to integer values based on user level for privileges
-    $csvPrivilegeValue = ($csvPrivilege === 'allow') ? rand(20, 30) : 0;
+    //$csvPrivilegeValue = ($csvPrivilege === 'allow') ? rand(20, 30) : 0;
     $qrGeneratePrivilegeValue = ($qrGeneratePrivilege === 'allow') ? rand(1, 30) : 0;
     $qrDetailsPrivilegeValue = ($qrDetailsPrivilege === 'allow') ? rand(10, 30) : 0;
     $estateManagementPrivilegeValue = ($estateManagementPrivilege === 'allow') ? rand(20, 30) : 0;
     $userLevelValue = ($userLevel === 'admin') ? rand(20, 30) : (($userLevel === 'super_user') ? rand(10, 20) : (($userLevel === 'user') ? rand(1, 10) : 0));
 
     // Use prepared statement for update
-    $sql = "UPDATE users SET email=?, name=?, handle_csv_privillages=?, gen_qr_privillages=?, qr_details_privillages=?, estate_privillages=?, user_level=? WHERE id=?";
+    $sql = "UPDATE users SET email=?, name=?,  gen_qr_privillages=?, qr_details_privillages=?, estate_privillages=?, user_level=? WHERE id=?";
     $stmt = mysqli_prepare($conn, $sql);
-    mysqli_stmt_bind_param($stmt, "ssiiiiii", $emailUser, $userName, $csvPrivilegeValue, $qrGeneratePrivilegeValue, $qrDetailsPrivilegeValue, $estateManagementPrivilegeValue, $userLevelValue, $id);
+    mysqli_stmt_bind_param($stmt, "ssiiiii", $emailUser, $userName,  $qrGeneratePrivilegeValue, $qrDetailsPrivilegeValue, $estateManagementPrivilegeValue, $userLevelValue, $id);
 
     if (mysqli_stmt_execute($stmt)) {
         $_SESSION['statusupdate'] = 'Record Updated Successfully!';
-        header('location:manage_users.php');
+        header('location:manage_users_update.php?updateid=' . $id);
         exit();
     } else {
         $_SESSION['statusupdate'] = 'Update failed: ' . mysqli_error($conn);
@@ -116,15 +116,15 @@ if (isset($_POST['submit'])) {
                         <input type="text" class="form-control" id="name" name="user_name"
                             value="<?php echo htmlspecialchars($row['name']); ?>" required>
                     </div>
-                    <div class="mb-3">
+                    <!-- <div class="mb-3">
                         <label for="csvPrivilege" class="form-label">CSV Privilege</label>
                         <select class="form-select" id="csvPrivilege" name="csv_privilege" required>
-                            <option value="allow" <?php echo ($row['handle_csv_privillages'] >= 20) ? 'selected' : ''; ?>>
+                            <option value="allow" <?php //echo ($row['handle_csv_privillages'] >= 20) ? 'selected' : ''; ?>>
                                 Allow</option>
-                            <option value="deny" <?php echo ($row['handle_csv_privillages'] < 20) ? 'selected' : ''; ?>>
+                            <option value="deny" <?php //echo ($row['handle_csv_privillages'] < 20) ? 'selected' : ''; ?>>
                                 Deny</option>
                         </select>
-                    </div>
+                    </div> -->
                     <div class="mb-3">
                         <label for="qrGeneratePrivilege" class="form-label">QR Generate Privilege</label>
                         <select class="form-select" id="qrGeneratePrivilege" name="qr_generate_privilege" required>
@@ -135,7 +135,7 @@ if (isset($_POST['submit'])) {
                         </select>
                     </div>
                     <div class="mb-3">
-                        <label for="qrDetailsPrivilege" class="form-label">QR Details Privilege</label>
+                        <label for="qrDetailsPrivilege" class="form-label">Batch Creation Privilege</label>
                         <select class="form-select" id="qrDetailsPrivilege" name="qr_details_privilege" required>
                             <option value="allow" <?php echo ($row['qr_details_privillages'] >= 10) ? 'selected' : ''; ?>>
                                 Allow</option>
@@ -177,6 +177,7 @@ if (isset($_POST['submit'])) {
         </div>
     </section>
     <script src="success_message.js"></script>
+
 </body>
 
 </html>

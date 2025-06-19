@@ -1,7 +1,7 @@
 <!-- Footer -->
 <footer class="footer text-center mt-4">
     <div class="container-fluid fixed-bottom bg-success"
-        style=" opacity: 0.85; border: 1px solid rgb(114, 234, 126); padding: 20px; border-radius: none; height: 65px;">
+        style=" opacity: 0.85; border: 1px solid rgb(114, 234, 126); padding: 20px; border-radius: none; height: 60px;">
         <div class="row mb-2 align-items-center">
             <div class="col-md-6 mb-2 mb-md-0 text-md-start">
                 <img src="sadaharitha_logo_black.png" alt="Sadaharitha Logo"

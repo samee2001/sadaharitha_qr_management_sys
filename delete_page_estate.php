@@ -25,6 +25,18 @@ try {
     if (mysqli_stmt_num_rows($check_stmt) === 0) {
         throw new Exception('Record not found');
     }
+    mysqli_stmt_close($check_stmt);
+
+    // Check if estate is referenced in issued_estate
+    $ref_stmt = mysqli_prepare($conn, "SELECT 1 FROM issued_estate WHERE estate_id = ? LIMIT 1");
+    mysqli_stmt_bind_param($ref_stmt, "i", $id);
+    mysqli_stmt_execute($ref_stmt);
+    mysqli_stmt_store_result($ref_stmt);
+
+    if (mysqli_stmt_num_rows($ref_stmt) > 0) {
+        throw new Exception("Can't delete: QR codes are already issued to this estate.");
+    }
+    mysqli_stmt_close($ref_stmt);
 
     // Delete record
     $delete_stmt = mysqli_prepare($conn, "DELETE FROM estate WHERE id = ?");
@@ -35,7 +47,7 @@ try {
     }
 
     if (mysqli_stmt_affected_rows($delete_stmt) > 0) {
-        $_SESSION['statusdelete'] = 'Record deleted successfully!';
+        $_SESSION['statusupdate'] = 'Record deleted successfully!';
         $_SESSION['alert_type'] = 'success';
     } else {
         throw new Exception('No records deleted');

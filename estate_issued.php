@@ -1,6 +1,10 @@
 <?php
 // Start session for user authentication
 session_start();
+if (!isset($_SESSION['email'])) {
+    header('Location: logIn.php');
+    exit();
+}
 
 // Database Configuration
 define('DB_HOST', 'localhost');
@@ -83,7 +87,7 @@ if (isset($_POST['issue'])) {
             // Query to count how many plant numbers in the range exist in data_plant
             $stmt = $mysqli->prepare("
                 SELECT COUNT(*) as total
-                FROM data_plant
+                FROM plant_data
                 WHERE plant_number BETWEEN ? AND ?
             ");
             $stmt->bind_param("ii", $rangeStart, $rangeEnd);
@@ -123,7 +127,7 @@ if (isset($_POST['issue'])) {
 
             // Update data_plant with issue_id for the range
             $updateStmt = $mysqli->prepare("
-                UPDATE data_plant
+                UPDATE plant_data
                 SET issued_id = ?
                 WHERE plant_number BETWEEN ? AND ?
             ");
@@ -275,7 +279,7 @@ $mysqli->close();
                                             issued_id,
                                             plant_number - ROW_NUMBER() OVER (ORDER BY plant_number) AS grp
                                           FROM
-                                            data_plant
+                                            plant_data
                                           WHERE
                                             issued_id = 0
                                         ) AS subquery
@@ -310,6 +314,7 @@ $mysqli->close();
                     </div>
                 </div>
             </div>
+            
         </div>
     </div>
     <!-- Bootstrap JS -->

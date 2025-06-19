@@ -7,7 +7,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $password = $_POST['password'];
 
     // Prepare the SQL query to fetch the user from the 'users' table
-    $stmt = $conn->prepare("SELECT id, name, password, email,  handle_csv_privillages, gen_qr_privillages, qr_details_privillages, estate_privillages, user_level FROM users WHERE email = ?");
+    $stmt = $conn->prepare("SELECT id, name, password, email, gen_qr_privillages, qr_details_privillages, estate_privillages, user_level FROM users WHERE email = ?");
     $stmt->bind_param("s", $email);
     $stmt->execute();
     $result = $stmt->get_result();
@@ -22,18 +22,18 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             $_SESSION['email'] = $email;
             $_SESSION['name'] = $user['name'];
             //$_SESSION['role'] = $user['role'];
-            $_SESSION['handle_csv_privillages'] = $user['handle_csv_privillages'];
+           // $_SESSION['handle_csv_privillages'] = $user['handle_csv_privillages'];
             $_SESSION['gen_qr_privillages'] = $user['gen_qr_privillages'];
             $_SESSION['qr_details_privillages'] = $user['qr_details_privillages'];
             $_SESSION['estate_privillages'] = $user['estate_privillages'];
             $_SESSION['user_level'] = $user['user_level'];
 
-            if ($user['handle_csv_privillages'] && $user['gen_qr_privillages'] && $user['qr_details_privillages'] && $user['estate_privillages'] == 0) {
+            if ( $user['gen_qr_privillages'] && $user['qr_details_privillages'] && $user['estate_privillages'] == 0) {
                 header("Location: logIn.php");
                 session_destroy();
                 exit();
             }
-            elseif (($user['handle_csv_privillages'] || $user['gen_qr_privillages'] || $user['qr_details_privillages'] || $user['estate_privillages']) > 0) {
+            elseif (( $user['gen_qr_privillages'] || $user['qr_details_privillages'] || $user['estate_privillages']) > 0) {
                 header("Location: dashboard.php");
                 exit();
             }

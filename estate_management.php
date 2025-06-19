@@ -48,7 +48,7 @@ if (isset($_POST['submit'])) {
             // Set success message in the session
             $_SESSION['status'] = 'Record Inserted Successfully!';
             // Redirect to estate_management.php after 3 seconds 
-            header('Location: estate_details_page.php');
+            header('Location: estate_management.php');
             mysqli_stmt_close($stmt);
             exit();
         } else {
@@ -126,7 +126,7 @@ if (isset($_POST['submit'])) {
         </div>
         <?php include 'components/footer.php'; ?>
     </div>
-    <script src="success_message.js"></script>
+    <script src="Js/success_message.js"></script>
 </body>
 
 </html>
