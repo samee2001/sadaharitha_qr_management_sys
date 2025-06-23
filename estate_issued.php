@@ -164,11 +164,11 @@ $mysqli->close();
     <?php include 'components/navbar.php'; ?>
     <br><br>
     <div class="container py-5">
-        <br><br>
+        <br>
         <div class="row justify-content-center g-4">
             <!-- Issue QR Codes Form -->
             <div class="col-12 col-lg-5">
-                <div class="card shadow-sm border-0">
+                <div class="card shadow-sm border-0 opacity-75">
                     <div class="card-header bg-success text-white text-center">
                         <i class="bi bi-qr-code-scan fs-3"></i>
                         <h4 class="mb-0 mt-2">Issue QR Codes</h4>
@@ -247,10 +247,10 @@ $mysqli->close();
             </div>
             <!-- Available QR Ranges -->
             <div class="col-12 col-lg-7">
-                <div class="card shadow-sm border-0 h-100">
+                <div class="card shadow-sm border-0 h-100 opacity-75">
                     <div class="card-header bg-success text-white text-center">
                         <i class="bi bi-list-ol fs-4"></i>
-                        <h5 class="mb-0 mt-2">Available QR Ranges Can be Issued</h5>
+                        <h5 class="mb-0 mt-1">Available QR Ranges Can be Issued to Estates</h5>
                     </div>
                     <div class="card-body">
                         <div class="table-responsive mb-2">
@@ -315,6 +315,9 @@ $mysqli->close();
                 </div>
             </div>
             
+            <div class="mt-4">
+                <?php include'released_estates.php'; ?>
+            </div>                  
         </div>
     </div>
     <!-- Bootstrap JS -->

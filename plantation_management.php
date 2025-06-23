@@ -16,7 +16,7 @@ $start_from = ($page - 1) * $records_per_page;
 
 
 // Fetch data for the current page
-$sql = "SELECT * FROM `qr_batch_details` ORDER BY batch_id DESC LIMIT $start_from, $records_per_page";
+$sql = "SELECT * FROM `qr_batch_details` ORDER BY created_at DESC LIMIT $start_from, $records_per_page";
 $result = $conn->query($sql);
 
 // Fetch total number of records to calculate total pages

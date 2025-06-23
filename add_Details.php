@@ -24,6 +24,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit'])) {
     $botanical_name = trim($_POST['bot'] ?? '');
     $email = $_SESSION['email'];
     //current date and time
+    date_default_timezone_set('Asia/Colombo');
     $created_at = date('Y-m-d H:i:s');
     
 

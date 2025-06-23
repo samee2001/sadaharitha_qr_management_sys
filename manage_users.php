@@ -91,7 +91,7 @@ $total_pages = ceil($total_records / $records_per_page);
                         echo "<td>" . htmlspecialchars($row['name']) . "</td>";
                         echo "<td>" . htmlspecialchars($row['email']) . "</td>";
                         echo "<td class='text-center'>";
-                        echo "<a href='manage_users_update.php?updateid=" . $row["id"] . "' class='btn btn-primary btn-sm me-2 text-light text-decoration-none'>Update</a>";
+                        echo "<a href='manage_users_update.php?updateid=" . $row["id"] . "' class='btn btn-primary btn-sm me-2 text-light text-decoration-none'>Change</a>";
                         echo "<a href='manage_users_delete.php?deleteid=" . $row["id"] . "' class='btn btn-danger btn-sm text-light text-decoration-none' onclick='return confirm(\"Are you sure you want to delete this record?\");'>Delete</a>";
                         echo "</td>";
                         echo "</tr>";

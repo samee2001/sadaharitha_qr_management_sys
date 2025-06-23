@@ -45,7 +45,8 @@ $total_pages = ceil($total_records / $records_per_page);
     <?php include 'components/navbar.php'; ?>
     <br><br><br><br>
     <?php
-    if (isset($_SESSION['statusupdate'])) {
+    // Success message for update or delete
+    if (isset($_SESSION['statusupdate']) && strpos($_SESSION['statusupdate'], "Can't update") === false && strpos($_SESSION['statusupdate'], "failed") === false) {
     ?>
         <div class="alert alert-success alert-dismissible fade show" role="alert">
             <strong>Success!</strong> <?php echo htmlspecialchars($_SESSION['statusupdate']); ?>
@@ -54,7 +55,31 @@ $total_pages = ceil($total_records / $records_per_page);
     <?php
         unset($_SESSION['statusupdate']);
     }
-    if (isset($_SESSION['statusdelete'])) {
+
+    // Error message for update
+    if (isset($_SESSION['statusupdate']) && (strpos($_SESSION['statusupdate'], "Can't update") !== false || strpos($_SESSION['statusupdate'], "failed") !== false)) {
+    ?>
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <strong>Error!</strong> <?php echo htmlspecialchars($_SESSION['statusupdate']); ?>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    <?php
+        unset($_SESSION['statusupdate']);
+    }
+
+    // Success message for delete
+    if (isset($_SESSION['statusdelete']) && strpos($_SESSION['statusdelete'], "success") !== false) {
+    ?>
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <strong>Success!</strong> <?php echo htmlspecialchars($_SESSION['statusdelete']); ?>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    <?php
+        unset($_SESSION['statusdelete']);
+    }
+
+    // Error message for delete
+    if (isset($_SESSION['statusdelete']) && strpos($_SESSION['statusdelete'], "success") === false) {
     ?>
         <div class="alert alert-danger alert-dismissible fade show" role="alert">
             <strong>Error!</strong> <?php echo htmlspecialchars($_SESSION['statusdelete']); ?>
@@ -79,7 +104,7 @@ $total_pages = ceil($total_records / $records_per_page);
             <table class="table table-bordered table-hover table-sm align-middle my-4" style="font-size: 0.92rem;">
                 <thead class="table-success">
                     <tr>
-                        <th scope="col">ID</th>
+                        <th scope="col">Estate ID</th>
                         <th scope="col">Estate Name</th>
                         <th scope="col">Plant Type</th>
                         <th scope="col">Land Called</th>

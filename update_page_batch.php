@@ -147,27 +147,7 @@ if (isset($_POST['submit'])) {
                         </select>
                     </div>
                 </div>
-                <!-- Estate Dropdown with Icon -->
-                <!-- <div class="form-group mb-4">
-                        <label for="estate" class="form-label">Estate QR Belongs to</label>
-                        <div class="input-group">
-                            <select name="estate" class="form-control" id="estate" required>
-                                <option value="">Select an Estate</option>
-                                <?php /*
-                                $sql = "SELECT estate_name FROM estate";
-                                $result = $conn->query($sql);
-                                if ($result->num_rows > 0) {
-                                    while ($row = $result->fetch_assoc()) {
-                                        $estate_name = htmlspecialchars($row['estate_name']);
-                                        $selected = ($estate_name === $currentEstate) ? 'selected' : '';
-                                        echo "<option value='$estate_name' $selected>$estate_name</option>";
-                                    }
-                                } else {
-                                    echo "<option value=''>No estates available</option>";
-                                }*/
-                                ?>
-                            </select>
-                        </div> -->
+                
                 <!-- Submit Button -->
                 <div class="btn" style="width: 100%; background-color: green;">
                     <button type="submit" name="submit"

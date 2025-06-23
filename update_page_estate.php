@@ -27,6 +27,21 @@ if (isset($_POST['submit'])) {
     $land = mysqli_real_escape_string($conn, $_POST['land']);
     $plant_type = mysqli_real_escape_string($conn, $_POST['plant_type']);
 
+    // Check if estate is referenced in issued_estate
+    $check_stmt = mysqli_prepare($conn, "SELECT 1 FROM issued_estate WHERE estate_id = ? LIMIT 1");
+    mysqli_stmt_bind_param($check_stmt, "i", $id);
+    mysqli_stmt_execute($check_stmt);
+    mysqli_stmt_store_result($check_stmt);
+
+    if (mysqli_stmt_num_rows($check_stmt) > 0) {
+        // Estate is referenced, show error and do not update
+        $_SESSION['statusupdate'] = "Can't update: QR codes are already issued to this estate.";
+        mysqli_stmt_close($check_stmt);
+        header('location:estate_details_page.php');
+        exit();
+    }
+    mysqli_stmt_close($check_stmt);
+
     // Use prepared statement for update
     $sql = "UPDATE estate SET estate_name=?, land_called=?, plant_type=? WHERE id=?";
     $stmt = mysqli_prepare($conn, $sql);
