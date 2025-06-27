@@ -1,26 +1,27 @@
 <?php
 session_start();
+include 'connect.php'; // Include your database connection file
 if (!isset($_SESSION['email'])) {
     header("Location: logIn.php");
     exit();
 }
 
-// Include libraries
-require('fpdf186/fpdf.php');
-require('phpqrcode/qrlib.php');
-require_once 'functions/qr_pdf_generator.php';
+// // Include libraries
+// require('fpdf186/fpdf.php');
+// require('phpqrcode/qrlib.php');
+// require_once 'functions/qr_pdf_generator.php';
 
-// Database Configuration
-define('DB_HOST', 'localhost');
-define('DB_USER', 'root');
-define('DB_PASS', '');
-define('DB_NAME', 'qrcode_db'); // Your database name
+// // Database Configuration
+// define('DB_HOST', 'localhost');
+// define('DB_USER', 'root');
+// define('DB_PASS', '');
+// define('DB_NAME', 'qrcode_db'); // Your database name
 
-// Create database connection
-$mysqli = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME);
-if ($mysqli->connect_error) {
-    die("Connection failed: " . $mysqli->connect_error);
-}
+// // Create database connection
+// $conn = new$conn(DB_HOST, DB_USER, DB_PASS, DB_NAME);
+// if ($conn->connect_error) {
+//     die("Connection failed: " . $conn->connect_error);
+// }
 
 $generateSuccess = false;
 // Check if the form is submitted for PDF generation
@@ -33,7 +34,7 @@ if (isset($_POST['generate'])) {
         'cellColorSelect' => $_POST['cellColorSelect'] ?? $_POST['cellColorSelectHidden'] ?? '255,255,255'
     ];
     try {
-        $pdfContent = generateQRPDF($mysqli, $params);
+        $pdfContent = generateQRPDF($conn, $params);
         $generateSuccess = true;
         header('Content-Type: application/pdf');
         header('Content-Disposition: attachment; filename="QR_Codes.pdf"');
@@ -99,7 +100,7 @@ if (isset($_POST['generate'])) {
                             <select name="qrManagementId" id="qrManagementId" class="form-select rounded-3" required>
                                 <option value="" data-start="" data-step="" data-background-color="">Select a Record</option>
                                 <?php
-                                $result = $mysqli->query("SELECT batch_id,  start, step, background_color FROM qr_batch_details");
+                                $result = $conn->query("SELECT batch_id,  start, step, background_color FROM qr_batch_details");
                                 if ($result && $result->num_rows > 0) {
                                     while ($row = $result->fetch_assoc()) {
                                         $id = $row['batch_id'];
@@ -131,7 +132,7 @@ if (isset($_POST['generate'])) {
                             <select name="cellColorSelect" id="cellColorSelect" class="form-select rounded-3" required>
                                 <option value="">Select a Color</option>
                                 <?php
-                                $result = $mysqli->query("SELECT color_name, color_code FROM colors");
+                                $result = $conn->query("SELECT color_name, color_code FROM colors");
                                 if ($result && $result->num_rows > 0) {
                                     while ($row = $result->fetch_assoc()) {
                                         $color_code = htmlspecialchars($row['color_code']);

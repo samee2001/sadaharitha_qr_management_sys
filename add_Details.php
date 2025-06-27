@@ -87,7 +87,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit'])) {
             $batch_id = $conn->insert_id;
 
             // Insert records into data_plant
-            $stmt = $conn->prepare("INSERT INTO plant_data (plant_number, year, email, botanical_name, background_color, qr_code_details, batch_id) VALUES (?, ?, ?, ?, ?, ?, ?)");
+            $stmt = $conn->prepare("INSERT INTO plant_data (plant_number, year, email, botanical_name, background_color, qr_code_details, batch_id, issued_id) VALUES (?, ?, ?, ?, ?, ?, ?,?)");
             if (!$stmt) {
                 throw new Exception("Prepare failed: " . $conn->error);
             }
@@ -95,7 +95,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit'])) {
             for ($i = 0; $i < $step; $i++) {
                 $plant_number = $start + $i;
                 $qr_code_details = "$year $botanical_name Plant No. $plant_number";
-                $stmt->bind_param("iissssi", $plant_number, $year, $email, $botanical_name, $background_color, $qr_code_details, $batch_id);
+                $issued_id = 0; // Set issued_id to 0 for new records
+                $stmt->bind_param("iissssii", $plant_number, $year, $email, $botanical_name, $background_color, $qr_code_details, $batch_id, $issued_id);
                 if (!$stmt->execute()) {
                     if ($conn->errno === 1062) {
                         throw new Exception("Duplicate plant number detected: $plant_number");

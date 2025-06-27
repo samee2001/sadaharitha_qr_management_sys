@@ -1,21 +1,10 @@
 <?php
 // Start session for user authentication
 session_start();
+include 'connect.php';
 if (!isset($_SESSION['email'])) {
     header('Location: logIn.php');
     exit();
-}
-
-// Database Configuration
-define('DB_HOST', 'localhost');
-define('DB_USER', 'root');
-define('DB_PASS', '');
-define('DB_NAME', 'qrcode_db'); // Your database name
-
-// Create database connection
-$mysqli = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME);
-if ($mysqli->connect_error) {
-    die("Connection failed: " . $mysqli->connect_error);
 }
 
 // Initialize variables
@@ -47,7 +36,7 @@ if (isset($_POST['issue'])) {
     if (empty($errors)) {
         try {
             // Query to check for overlapping ranges in issued_estate
-            $stmt = $mysqli->prepare("
+            $stmt = $conn->prepare("
                 SELECT estate_id, range_start, range_end
                 FROM issued_estate
                 WHERE
@@ -66,7 +55,7 @@ if (isset($_POST['issue'])) {
                 $existingRangeStart = $row['range_start'];
                 $existingRangeEnd = $row['range_end'];
                 // Fetch estate name for user-friendly error message
-                $estateStmt = $mysqli->prepare("SELECT estate_name FROM estate WHERE id = ?");
+                $estateStmt = $conn->prepare("SELECT estate_name FROM estate WHERE id = ?");
                 $estateStmt->bind_param("i", $existingEstateId);
                 $estateStmt->execute();
                 $estateResult = $estateStmt->get_result();
@@ -81,11 +70,11 @@ if (isset($_POST['issue'])) {
         }
     }
 
-    // Check if the range exists in data_plant
+    // Check if the range exists in plant_data
     if (empty($errors)) {
         try {
-            // Query to count how many plant numbers in the range exist in data_plant
-            $stmt = $mysqli->prepare("
+            // Query to count how many plant numbers in the range exist in plant_data
+            $stmt = $conn->prepare("
                 SELECT COUNT(*) as total
                 FROM plant_data
                 WHERE plant_number BETWEEN ? AND ?
@@ -98,7 +87,7 @@ if (isset($_POST['issue'])) {
             $expectedPlants = $rangeEnd - $rangeStart + 1;
 
             if ($totalPlants != $expectedPlants) {
-                $errors[] = "The range $rangeStart to $rangeEnd is invalid. Not all plant numbers in this range exist in the data_plant table.";
+                $errors[] = "The range $rangeStart to $rangeEnd is invalid. Not all plant numbers in this range exist in the plant_data table.";
             }
             $stmt->close();
         } catch (Exception $e) {
@@ -107,49 +96,48 @@ if (isset($_POST['issue'])) {
         }
     }
 
-    // If no errors, insert into issued_estate and update data_plant
+    // If no errors, insert into issued_estate and update plant_data
     if (empty($errors)) {
-        $mysqli->begin_transaction();
+        $conn->begin_transaction();
         try {
             // Insert into issued_estate
-            $stmt = $mysqli->prepare("
+            date_default_timezone_set('Asia/Colombo');
+            $issuedAt = date('Y-m-d H:i:s');
+            $stmt = $conn->prepare("
                 INSERT INTO issued_estate (estate_id, range_start, range_end, issued_at, issued_by)
-                VALUES (?, ?, ?, NOW(), ?)
+                VALUES (?, ?, ?, ?, ?)
             ");
             $issuedBy = $_SESSION['email'] ?? 'system'; // Use session email or default
-            $stmt->bind_param("iiis", $estateId, $rangeStart, $rangeEnd, $issuedBy);
+            $stmt->bind_param("iiiss", $estateId, $rangeStart, $rangeEnd, $issuedAt, $issuedBy);
             if (!$stmt->execute()) {
-                throw new Exception("Failed to save issuance details: " . $mysqli->error);
+                throw new Exception("Failed to save issuance details: " . $conn->error);
             }
             // Retrieve the last inserted id
-            $issueId = $mysqli->insert_id;
+            $issueId = $conn->insert_id;
             $stmt->close();
 
-            // Update data_plant with issue_id for the range
-            $updateStmt = $mysqli->prepare("
+            // Update plant_data with issue_id for the range
+            $updateStmt = $conn->prepare("
                 UPDATE plant_data
                 SET issued_id = ?
                 WHERE plant_number BETWEEN ? AND ?
             ");
             $updateStmt->bind_param("iii", $issueId, $rangeStart, $rangeEnd);
             if (!$updateStmt->execute()) {
-                throw new Exception("Failed to update data_plant with issue_id: " . $mysqli->error);
+                throw new Exception("Failed to update plant_data with issue_id: " . $conn->error);
             }
             $updateStmt->close();
 
-            $mysqli->commit();
-            $successMessage = "QR codes issued successfully for range $rangeStart to $rangeEnd and data_plant updated.";
+            $conn->commit();
+            $successMessage = "QR codes issued successfully for range $rangeStart to $rangeEnd.";
             echo "<script>document.getElementById('qrForm').reset();</script>";
         } catch (Exception $e) {
-            $mysqli->rollback();
+            $conn->rollback();
             $errors[] = "Database error: " . htmlspecialchars($e->getMessage());
             error_log("Transaction error: " . $e->getMessage());
         }
     }
 }
-
-// Close database connection
-$mysqli->close();
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -214,11 +202,8 @@ $mysqli->close();
                                     <select name="estateSelect" id="estateSelect" class="form-select" required>
                                         <option value="">Select Estate</option>
                                         <?php
-                                        $mysqli = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME);
-                                        if ($mysqli->connect_error) {
-                                            die("Connection failed: " . $mysqli->connect_error);
-                                        }
-                                        $result = $mysqli->query("SELECT id, estate_name FROM estate ORDER BY estate_name");
+                                        // Use the same $conn for this query
+                                        $result = $conn->query("SELECT id, estate_name FROM estate ORDER BY estate_name");
                                         if ($result && $result->num_rows > 0) {
                                             while ($row = $result->fetch_assoc()) {
                                                 $id = htmlspecialchars($row['id']);
@@ -230,7 +215,6 @@ $mysqli->close();
                                         } else {
                                             echo "<option value=''>No estates available</option>";
                                         }
-                                        $mysqli->close();
                                         ?>
                                     </select>
                                 </div>
@@ -264,43 +248,39 @@ $mysqli->close();
                                 </thead>
                                 <tbody>
                                 <?php
-                                $mysqli = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME);
-                                if ($mysqli->connect_error) {
-                                    echo '<tr><td colspan="3">DB Error</td></tr>';
-                                } else {
-                                    $sql = "
-                                        SELECT
-                                          MIN(plant_number) AS range_start,
-                                          MAX(plant_number) AS range_end,
-                                          'Available' AS status
-                                        FROM (
-                                          SELECT
-                                            plant_number,
-                                            issued_id,
-                                            plant_number - ROW_NUMBER() OVER (ORDER BY plant_number) AS grp
-                                          FROM
-                                            plant_data
-                                          WHERE
-                                            issued_id = 0
-                                        ) AS subquery
-                                        GROUP BY grp
-                                        ORDER BY range_start
-                                    ";
-                                    $result = $mysqli->query($sql);
-                                    $total = 0;
-                                    if ($result && $result->num_rows > 0) {
-                                        while ($row = $result->fetch_assoc()) {
-                                            $total++;
-                                            echo '<tr>';
-                                            echo '<td>' . htmlspecialchars($row['range_start']) . '</td>';
-                                            echo '<td>' . htmlspecialchars($row['range_end']) . '</td>';
-                                            echo '<td><span class="badge bg-success">' . htmlspecialchars($row['status']) . '</span></td>';
-                                            echo '</tr>';
-                                        }
-                                    } else {
-                                        echo '<tr><td colspan="3">No available ranges</td></tr>';
+                                // Find available ranges in plant_data
+                                // This query requires MySQL 8.0+ for ROW_NUMBER()
+                                $sql = "
+                                    SELECT
+                                      MIN(plant_number) AS range_start,
+                                      MAX(plant_number) AS range_end,
+                                      'Available' AS status
+                                    FROM (
+                                      SELECT
+                                        plant_number,
+                                        issued_id,
+                                        plant_number - ROW_NUMBER() OVER (ORDER BY plant_number) AS grp
+                                      FROM
+                                        plant_data
+                                      WHERE
+                                        issued_id = 0
+                                    ) AS subquery
+                                    GROUP BY grp
+                                    ORDER BY range_start
+                                ";
+                                $result = $conn->query($sql);
+                                $total = 0;
+                                if ($result && $result->num_rows > 0) {
+                                    while ($row = $result->fetch_assoc()) {
+                                        $total++;
+                                        echo '<tr>';
+                                        echo '<td>' . htmlspecialchars($row['range_start']) . '</td>';
+                                        echo '<td>' . htmlspecialchars($row['range_end']) . '</td>';
+                                        echo '<td><span class="badge bg-success">' . htmlspecialchars($row['status']) . '</span></td>';
+                                        echo '</tr>';
                                     }
-                                    $mysqli->close();
+                                } else {
+                                    echo '<tr><td colspan="3">No available ranges</td></tr>';
                                 }
                                 ?>
                                 </tbody>
@@ -316,7 +296,7 @@ $mysqli->close();
             </div>
             
             <div class="mt-4">
-                <?php include'released_estates.php'; ?>
+                <?php include 'released_estates.php'; ?>
             </div>                  
         </div>
     </div>

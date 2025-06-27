@@ -138,6 +138,17 @@ if (!isset($_SESSION['email'])) {
                     </a>
                 </div>
             <?php endif; ?>
+            <div class="col">
+                <a href="report_page.php" class="card text-white bg-primary text-decoration-none">
+                    <div class="card-body text-center">
+                        <div class="icon fs-1 mb-3"><i class="bi bi-file-earmark-plus"></i></div>
+                        <h5 class="card-title">Generate Report</h5>
+                        <div class="card-footer text-center">
+                            <small>More Details</small>
+                        </div>
+                    </div>
+                </a>
+            </div>
         </div>
     </div>
     <?php include 'components/footer.php'; ?>

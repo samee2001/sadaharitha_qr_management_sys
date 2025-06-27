@@ -14,12 +14,12 @@ function generateQRPDF($mysqli, $params)
         $cellColor = array_map('intval', $rgb);
         foreach ($cellColor as $c) {
             if ($c < 0 || $c > 255) {
-                $cellColor = [255,255,255];
+                $cellColor = [255, 255, 255];
                 break;
             }
         }
     } else {
-        $cellColor = [255,255,255];
+        $cellColor = [255, 255, 255];
     }
 
     // Fetch color mapping from database
@@ -53,7 +53,7 @@ function generateQRPDF($mysqli, $params)
         return $colorMap;
     }
 
-   
+
 
     // Create QR code directory if not exists
     if (!file_exists('qrcodes')) {
@@ -75,21 +75,6 @@ function generateQRPDF($mysqli, $params)
         $plantNumber = 'Plant No. ' . (isset($row['plant_number']) ? $row['plant_number'] : 'N/A');
         $filename = "qrcodes/{$row['plant_number']}.png";
         QRcode::png($qrContent, $filename, QR_ECLEVEL_L, 10);
-
-        $currentDateTime = date('Y-m-d H:i:s');
-        $generatedBy = $_SESSION['email'];
-        $batchId = isset($_POST['qrManagementId']) ? $_POST['qrManagementId'] : 'No Mentioned';
-        $sql_insert = "INSERT INTO qr_details (qr_content, plant_number, created_at, generated_by, batch_id) VALUES ( ?, ?, ?, ?, ?)";
-        $stmt_insert = $mysqli->prepare($sql_insert);
-        if ($stmt_insert) {
-            mysqli_stmt_bind_param($stmt_insert, "sssss", $qrContent, $plantNumber,  $currentDateTime, $generatedBy, $batchId);
-            if (!mysqli_stmt_execute($stmt_insert)) {
-                echo "Error inserting QR PDF record: " . $mysqli->error;
-            }
-            mysqli_stmt_close($stmt_insert);
-        } else {
-            echo "Prepare failed: " . $mysqli->error;
-        }
 
         $items[] = [
             'file' => $filename,

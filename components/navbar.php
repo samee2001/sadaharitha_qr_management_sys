@@ -17,7 +17,7 @@ if (session_status() === PHP_SESSION_NONE) {
             <span class="navbar-toggler-icon"></span>
         </button>
         <!-- Navbar content -->
-        <div class="collapse navbar-collapse justify-content-center" style="margin-left: 420px;" id="navbarNav">
+        <div class="collapse navbar-collapse justify-content-center" style="margin-left: 400px;" id="navbarNav">
             <ul class="navbar-nav ms-lg-5">
                 <?php /* if ($_SESSION['handle_csv_privillages'] >= 20): ?>
                     <li class="nav-item">
